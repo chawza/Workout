@@ -27,35 +27,42 @@ Here is a summary of the finalized database design decisions we have discussed, 
 
 ```mermaid
 erDiagram
-    Goal ||--o{ Parameter : "has"
-    Goal ||--o{ Workout : "tracks"
-    Workout ||--o{ WorkoutParameter : "has"
-    Parameter ||--o{ WorkoutParameter : "recorded_as"
+   Goal ||--o{ Parameter : "has"
+   Goal ||--o{ Workout : "tracks"
+   Workout ||--o{ WorkoutParameter : "has"
+   Parameter ||--o{ WorkoutParameter : "recorded_as"
 
-    Goal {
-        int id PK
-        string name
-    }
+   Goal {
+      int id PK
+      string name
+      string status "New: 'active', 'completed'"
+      int created_at
+      int comleted_at
+      int start_at 
+   }
 
-    Parameter {
-        int id PK
-        int goal_id FK
-        string name
-        string type
-    }
+   Parameter {
+      int id PK
+      int goal_id FK
+      string name
+      string type
+      string unit "New: 'kg', 'km', 'reps', etc."
+   }
 
-    Workout {
-        int id PK
-        int goal_id FK "Indexed: (goal_id, date DESC)"
-        date date
-        time time
-    }
+   Workout {
+      int id PK
+      int goal_id FK
+      date date
+      time time "Start time of day"
+      int duration_minutes "New: How long it lasted"
+      string notes "New: Personal training log notes"
+   }
 
-    WorkoutParameter {
-        int workout_id PK, FK "Composite PK 1"
-        int parameter_id PK, FK "Composite PK 2 (Reverse Indexed)"
-        float value_float
-        int value_int
-        string value_string
-    }
+   WorkoutParameter {
+      int workout_id PK, FK
+      int parameter_id PK, FK
+      float value_float
+      int value_int
+      string value_string
+   }
 ```
