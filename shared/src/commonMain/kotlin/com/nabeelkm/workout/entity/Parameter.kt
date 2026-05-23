@@ -5,7 +5,7 @@ import androidx.room.PrimaryKey
 import androidx.room.ForeignKey
 import androidx.room.Index
 
-enum class ParameterType(value: Int) {
+enum class ParameterType(val value: Int) {
     STRING(1),
     INTEGER(2),
     FLOAT(3)
@@ -16,16 +16,16 @@ enum class ParameterType(value: Int) {
         ForeignKey(
             entity = Goal::class,
             parentColumns = ["id"],
-            childColumns = ["goal_id"],
+            childColumns = ["goalId"],
             onDelete = ForeignKey.CASCADE
         ),
     ],
     indices = [
-        Index(value = ["goal_id"])
+        Index(value = ["goalId"])
     ]
 )
 data class Parameter(
-    @PrimaryKey val id: Int,
+    @PrimaryKey(autoGenerate = true) val id: Int,
     val goalId: Int,
     val name: String,
     val type: Int,

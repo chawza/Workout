@@ -12,7 +12,7 @@ enum class GoalStatus(
 }
 @Entity
 data class Goal(
-    @PrimaryKey val id: Int,
+    @PrimaryKey(autoGenerate = true) val id: Int,
     val name: String,
     val status: Int,
     val createdAt: Int,

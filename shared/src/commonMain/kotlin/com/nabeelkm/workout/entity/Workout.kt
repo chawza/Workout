@@ -10,17 +10,17 @@ import androidx.room.PrimaryKey
         ForeignKey(
             entity = Goal::class,
             parentColumns = ["id"],
-            childColumns = ["goal_id"],
+            childColumns = ["goalId"],
             onDelete = ForeignKey.CASCADE
         )
     ],
     indices = [
         Index(value = ["time"]),
-        Index(value = ["goal_id"])
+        Index(value = ["goalId"])
     ]
 )
 data class Workout(
-    @PrimaryKey val id: Int,
+    @PrimaryKey(autoGenerate = true) val id: Int,
     val goalId: Int,
     val time: Long,
     val duration: Long?,

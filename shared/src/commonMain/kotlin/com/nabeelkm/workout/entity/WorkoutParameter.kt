@@ -10,23 +10,23 @@ import androidx.room.PrimaryKey
         ForeignKey(
             entity = Workout::class,
             parentColumns = ["id"],
-            childColumns = ["workout_id"],
+            childColumns = ["workoutId"],
             onDelete = ForeignKey.CASCADE
         ),
         ForeignKey(
             entity = Parameter::class,
             parentColumns = ["id"],
-            childColumns = ["parameter_id"],
+            childColumns = ["parameterId"],
             onDelete = ForeignKey.CASCADE
         ),
     ],
     indices = [
-        Index(value = ["parameter_id"]),
-        Index(value = ["workout_id", "parameter_id"]),
+        Index(value = ["parameterId"]),
+        Index(value = ["workoutId", "parameterId"]),
     ]
 )
 data class WorkoutParameter(
-    @PrimaryKey val id: Int,
+    @PrimaryKey(autoGenerate = true) val id: Int,
     val workoutId: Int,
     val parameterId: Int,
     val valueFloat: Float?,
