@@ -48,6 +48,10 @@ fun Theme(content: @Composable () -> Unit) {
     MaterialTheme(
         colorScheme = MaterialTheme.colorScheme.copy(
             background = ThemeColor.background,
+            surface = ThemeColor.onBackground,
+            surfaceContainer = ThemeColor.onBackground,
+            surfaceContainerHigh = ThemeColor.onBackground,
+            surfaceContainerHighest = ThemeColor.onBackground,
         ),
         shapes = MaterialTheme.shapes.copy(
             medium = ShapeDefaults.Medium.copy(CornerSize(10.dp))
