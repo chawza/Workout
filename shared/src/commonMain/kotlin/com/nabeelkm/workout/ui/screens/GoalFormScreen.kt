@@ -75,14 +75,14 @@ fun GoalFormScreen(
     navigator: Navigator
 ) {
     GoalFormScreen(
-        onAdd = {
-            // TODO: save goal and go back
-            navigator.goBack()
-        },
         formStateFlow = viewModel.formState,
+        onAdd = viewModel::addGoal,
         onCancel = {
             navigator.goBack()
-        }
+        },
+        onNameChange = viewModel::onNameChanges,
+        onStartDateChange = viewModel::onStartAtChanges,
+        onNotesChange = viewModel::onNotesChanges
     )
 }
 @Composable
@@ -98,7 +98,7 @@ fun GoalFormScreen(
         topBar = {
             TopAppBar(
                 title = {
-                    // TODO: add border bottom as seperator
+                    // TODO: add border bottom as separator
                     Row(
                         modifier = Modifier.fillMaxWidth(),
                         verticalAlignment = Alignment.CenterVertically,

@@ -15,12 +15,14 @@ import org.jetbrains.compose.resources.Font
 import workout.shared.generated.resources.Res
 import workout.shared.generated.resources.SpaceGrotesk_Bold
 import workout.shared.generated.resources.SpaceGrotesk_Regular
+import workout.shared.generated.resources.SpaceGrotesk_SemiBold
 
 
 @Composable
 fun spaceGrotesk(): FontFamily {
     return FontFamily(
         Font(Res.font.SpaceGrotesk_Regular, FontWeight.Medium),
+        Font(Res.font.SpaceGrotesk_SemiBold, FontWeight.SemiBold),
         Font(Res.font.SpaceGrotesk_Bold, FontWeight.Bold),
     )
 }
@@ -34,6 +36,9 @@ object ThemeColor {
     val white  = Color(0xFFffffff)
     val border = Color(0xFFE5E7EB)
     val onBackground = Color(0xFFFFFFFF)
+
+    val success = Color(0xFF10B981)
+    val muted = Color(0xFF6B7280)
 }
 
 @Composable
