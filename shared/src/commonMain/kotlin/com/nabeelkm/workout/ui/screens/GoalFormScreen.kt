@@ -192,6 +192,8 @@ fun GoalFormScreen(
                         )
                     }
 
+                    // TODO: dashed borders stroke
+                    // TODO: hover using coral accent
                     OutlinedButton(
                         onClick = { },
                         contentPadding = PaddingValues(8.dp),

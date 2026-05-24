@@ -27,11 +27,6 @@ data class Goal(
     val completedAt: Long?,
     val startAt: Long?
 ) {
-    /**
-     * Returns the GoalStatus corresponding to the status value.
-     * Fixed: Used fromValue instead of entries index to avoid IndexOutOfBoundsException
-     * as status values are 1-indexed.
-     */
     fun getStatus(): GoalStatus {
         return GoalStatus.fromValue(status)
     }
