@@ -10,4 +10,8 @@ class GoalRepository(
 ) {
     private val dao = database.goalDao()
     val goals = dao.getAll()
+
+    suspend fun insertOne(goal: Goal) {
+        dao.insert(goal)
+    }
 }

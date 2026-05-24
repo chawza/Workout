@@ -3,6 +3,7 @@ agp = "9.0.1"
 android-compileSdk = "36"
 android-minSdk = "24"
 android-targetSdk = "36"
+kotlinxDatetime = "0.8.0"
 kotlinxSerializationCore = "1.11.0"
 material3AdaptiveNavigationSuite = "1.5.0-alpha20"
 material3Version = "1.4.0"
@@ -56,6 +57,7 @@ compose-ui = { module = "org.jetbrains.compose.ui:ui", version.ref = "composeMul
 compose-components-resources = { module = "org.jetbrains.compose.components:components-resources", version.ref = "composeMultiplatform" }
 compose-uiToolingPreview = { module = "org.jetbrains.compose.ui:ui-tooling-preview", version.ref = "composeMultiplatform" }
 kotlinx-coroutinesSwing = { module = "org.jetbrains.kotlinx:kotlinx-coroutines-swing", version.ref = "kotlinx-coroutines" }
+kotlinx-datetime = { module = "org.jetbrains.kotlinx:kotlinx-datetime", version.ref = "kotlinxDatetime" }
 kotlinx-serialization-core = { module = "org.jetbrains.kotlinx:kotlinx-serialization-core", version.ref = "kotlinxSerializationCore" }
 wrappers-browser = { module = "org.jetbrains.kotlin-wrappers:kotlin-browser", version.ref = "kotlin-wrappers" }
 room-runtime = { module = "androidx.room:room-runtime", version.ref = "room" }

@@ -1,16 +1,19 @@
 package com.nabeelkm.workout.di
 
+import androidx.compose.runtime.snapshots.SnapshotStateList
 import com.nabeelkm.workout.Screen
 import com.nabeelkm.workout.database.AppDatabase
 import com.nabeelkm.workout.database.getDatabaseBuilder
+import com.nabeelkm.workout.navigation.Navigator
 import com.nabeelkm.workout.repository.GoalRepository
+import com.nabeelkm.workout.ui.screens.GoalFormScreen
 import com.nabeelkm.workout.ui.screens.GoalIndexScreen
+import com.nabeelkm.workout.viewmodel.GoalFormViewModel
 import com.nabeelkm.workout.viewmodel.GoalIndexViewModel
 import org.koin.compose.viewmodel.koinViewModel
 import org.koin.core.annotation.KoinExperimentalAPI
 import org.koin.core.module.Module
 import org.koin.core.module.dsl.singleOf
-import org.koin.core.module.dsl.viewModel
 import org.koin.core.module.dsl.viewModelOf
 import org.koin.dsl.module
 import org.koin.dsl.navigation3.navigation
@@ -22,10 +25,22 @@ val sharedModule = module {
     }
     singleOf(::GoalRepository)
     viewModelOf(::GoalIndexViewModel)
+    viewModelOf(::GoalFormViewModel)
+
+    single { (backStack: SnapshotStateList<Screen>) ->
+        Navigator(backStack)
+    }
 
     navigation<Screen.GoalIndex> {
         GoalIndexScreen(
-            viewModel = koinViewModel()
+            viewModel = koinViewModel(),
+            navigator = get()
+        )
+    }
+    navigation<Screen.GoalAddForm> {
+        GoalFormScreen(
+            viewModel = koinViewModel(),
+            navigator = get()
         )
     }
     navigation<Screen.Home> {

@@ -8,7 +8,15 @@ import androidx.room.Index
 enum class ParameterType(val value: Int) {
     STRING(1),
     INTEGER(2),
-    FLOAT(3)
+    FLOAT(3);
+
+    override fun toString(): String {
+        return when(this) {
+            STRING -> "String"
+            FLOAT -> "Float"
+            INTEGER -> "Integer"
+        }
+    }
 }
 
 @Entity(

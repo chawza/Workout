@@ -27,11 +27,13 @@ fun spaceGrotesk(): FontFamily {
 
 object ThemeColor {
     val textBlack = Color(0xFF111827)
+    val textGrey = Color(0xFF6b7280)
+    val foreGround2 = Color(0xF374151)
     val background = Color(0xFFf8f9fb)
     val primary = Color(0xFFFF6B4A)
     val white  = Color(0xFFffffff)
-
-
+    val border = Color(0xFFE5E7EB)
+    val onBackground = Color(0xFFFFFFFF)
 }
 
 @Composable
@@ -46,13 +48,16 @@ fun Theme(content: @Composable () -> Unit) {
         content = content,
         typography = Typography(
             fontFamily = spaceGrotesk(),
-            bodyMedium = TextStyle(
-                fontSize = 16.sp,
-            ),
             titleMedium = TextStyle(
                 fontSize = 22.sp,
                 fontWeight = FontWeight.Bold
-            )
+            ),
+            bodyMedium = TextStyle(
+                fontSize = 16.sp,
+            ),
+            bodySmall = TextStyle(
+                fontSize = 14.sp,
+            ),
         )
     )
 }

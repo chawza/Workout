@@ -74,6 +74,7 @@ kotlin {
             implementation(libs.koin.compose.viewmodel)
             implementation(libs.navigation3.ui)
             implementation(libs.kotlinx.serialization.core)
+            implementation(libs.kotlinx.datetime)
         }
         commonTest.dependencies {
             implementation(libs.kotlin.test)
