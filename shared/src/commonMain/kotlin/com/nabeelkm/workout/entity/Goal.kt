@@ -10,7 +10,13 @@ enum class GoalStatus(
 ) {
     NEW(1, "New"),
     ACTIVE(2, "Active"),
-    COMPLETED(3, "Completed"),
+    COMPLETED(3, "Completed");
+
+    companion object {
+        fun fromValue(value: Int): GoalStatus {
+            return entries.find { it.value == value } ?: NEW
+        }
+    }
 }
 @Entity
 data class Goal(
@@ -22,6 +28,6 @@ data class Goal(
     val startAt: Long?
 ) {
     fun getStatus(): GoalStatus {
-        return GoalStatus.entries[status]
+        return GoalStatus.fromValue(status)
     }
 }

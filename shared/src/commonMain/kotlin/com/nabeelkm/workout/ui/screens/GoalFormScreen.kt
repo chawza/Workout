@@ -5,10 +5,10 @@ import androidx.compose.foundation.background
 import androidx.compose.foundation.border
 import androidx.compose.foundation.clickable
 import androidx.compose.foundation.layout.Arrangement
+import androidx.compose.foundation.layout.Box
 import androidx.compose.foundation.layout.Column
 import androidx.compose.foundation.layout.PaddingValues
 import androidx.compose.foundation.layout.Row
-import androidx.compose.foundation.layout.Spacer
 import androidx.compose.foundation.layout.fillMaxSize
 import androidx.compose.foundation.layout.fillMaxWidth
 import androidx.compose.foundation.layout.padding
@@ -16,17 +16,18 @@ import androidx.compose.foundation.layout.width
 import androidx.compose.foundation.lazy.LazyRow
 import androidx.compose.foundation.rememberScrollState
 import androidx.compose.foundation.verticalScroll
-import androidx.compose.foundation.lazy.items
 import androidx.compose.foundation.shape.RoundedCornerShape
-import androidx.compose.foundation.text.LocalAutofillHighlightColor
+import androidx.compose.material3.AlertDialog
 import androidx.compose.material3.Button
 import androidx.compose.material3.ButtonDefaults
 import androidx.compose.material3.Card
 import androidx.compose.material3.CardDefaults
 import androidx.compose.material3.DatePicker
 import androidx.compose.material3.DatePickerDialog
+import androidx.compose.material3.DatePickerDefaults
 import androidx.compose.material3.DropdownMenu
 import androidx.compose.material3.DropdownMenuItem
+import androidx.compose.material3.ExperimentalMaterial3Api
 import androidx.compose.material3.IconButton
 import androidx.compose.material3.MaterialTheme
 import androidx.compose.material3.OutlinedButton
@@ -35,10 +36,11 @@ import androidx.compose.material3.OutlinedTextFieldDefaults
 import androidx.compose.material3.Scaffold
 import androidx.compose.material3.Text
 import androidx.compose.material3.TextButton
+import androidx.compose.material3.TimePicker
 import androidx.compose.material3.TopAppBar
-import androidx.compose.material3.TopAppBarColors
 import androidx.compose.material3.TopAppBarDefaults
 import androidx.compose.material3.rememberDatePickerState
+import androidx.compose.material3.rememberTimePickerState
 import androidx.compose.runtime.Composable
 import androidx.compose.runtime.collectAsState
 import androidx.compose.runtime.getValue
@@ -48,10 +50,8 @@ import androidx.compose.ui.Alignment
 import androidx.compose.ui.Modifier
 import androidx.compose.ui.graphics.Color
 import androidx.compose.ui.text.font.FontWeight
-import androidx.compose.ui.text.input.TextFieldValue
 import androidx.compose.ui.tooling.preview.Preview
 import androidx.compose.ui.unit.dp
-import androidx.lifecycle.compose.collectAsStateWithLifecycle
 import com.nabeelkm.workout.entity.Goal
 import com.nabeelkm.workout.entity.GoalStatus
 import com.nabeelkm.workout.entity.Parameter
@@ -63,10 +63,10 @@ import com.nabeelkm.workout.viewmodel.FormState
 import com.nabeelkm.workout.viewmodel.GoalFormViewModel
 import kotlinx.coroutines.flow.MutableStateFlow
 import kotlinx.coroutines.flow.StateFlow
-import kotlinx.datetime.Month
+import kotlinx.datetime.TimeZone
+import kotlinx.datetime.toLocalDateTime
 import org.koin.compose.viewmodel.koinViewModel
 import kotlin.time.Clock
-import kotlin.time.Instant
 
 
 @Composable
@@ -75,16 +75,20 @@ fun GoalFormScreen(
     navigator: Navigator
 ) {
     GoalFormScreen(
-        onAdd = {
-            // TODO: save goal and go back
-            navigator.goBack()
-        },
         formStateFlow = viewModel.formState,
+        onAdd = viewModel::addGoal,
         onCancel = {
             navigator.goBack()
-        }
+        },
+        onNameChange = viewModel::onNameChanges,
+        onStartDateChange = viewModel::onStartDateChanges,
+        onStartTimeChange = viewModel::onStartTimeChanges,
+        onCompletedDateChange = viewModel::onCompletedDateChanges,
+        onCompletedTimeChange = viewModel::onCompletedTimeChanges,
+        onNotesChange = viewModel::onNotesChanges
     )
 }
+
 @Composable
 fun GoalFormScreen(
     onAdd: (Goal) -> Unit,
@@ -92,13 +96,15 @@ fun GoalFormScreen(
     onCancel: () -> Unit = {},
     onNameChange: (String) -> Unit = {},
     onStartDateChange: (Long?) -> Unit = {},
+    onStartTimeChange: (Int, Int) -> Unit = { _, _ -> },
+    onCompletedDateChange: (Long?) -> Unit = {},
+    onCompletedTimeChange: (Int, Int) -> Unit = { _, _ -> },
     onNotesChange: (String) -> Unit = {}
 ) {
     Scaffold(
         topBar = {
             TopAppBar(
                 title = {
-                    // TODO: add border bottom as seperator
                     Row(
                         modifier = Modifier.fillMaxWidth(),
                         verticalAlignment = Alignment.CenterVertically,
@@ -116,7 +122,7 @@ fun GoalFormScreen(
                             onClick = onCancel,
                             shape = RoundedCornerShape(10.dp),
                             contentPadding = PaddingValues(18.dp, 10.dp)
-                        ){
+                        ) {
                             Text("Cancel")
                         }
                     }
@@ -127,11 +133,16 @@ fun GoalFormScreen(
     ) { innerPadding ->
         val formState by formStateFlow.collectAsState()
         Column(
-            modifier = Modifier.padding(innerPadding).fillMaxSize().verticalScroll(rememberScrollState()).padding(16.dp),
+            modifier = Modifier.padding(innerPadding).fillMaxSize()
+                .verticalScroll(rememberScrollState()).padding(16.dp),
             verticalArrangement = Arrangement.spacedBy(16.dp),
         ) {
-            val showDateModal = remember { mutableStateOf(false) }
-            
+            val showStartDateModal = remember { mutableStateOf(false) }
+            val showStartTimeModal = remember { mutableStateOf(false) }
+            val showCompletedDateModal = remember { mutableStateOf(false) }
+            val showCompletedTimeModal = remember { mutableStateOf(false) }
+
+            // Goal Name
             Column(
                 modifier = Modifier.fillMaxWidth(),
                 verticalArrangement = Arrangement.spacedBy(8.dp)
@@ -153,6 +164,8 @@ fun GoalFormScreen(
                     }
                 )
             }
+
+            // Parameters Card
             Card(
                 modifier = Modifier
                     .fillMaxWidth()
@@ -164,7 +177,6 @@ fun GoalFormScreen(
                 Column(
                     modifier = Modifier.fillMaxWidth().padding(16.dp)
                 ) {
-
                     Text(
                         "Parameters",
                         style = MaterialTheme.typography.bodySmall.copy(fontWeight = FontWeight.Bold)
@@ -180,13 +192,10 @@ fun GoalFormScreen(
                         )
                     }
 
-
                     // TODO: dashed borders stroke
                     // TODO: hover using coral accent
                     OutlinedButton(
-                        onClick = {
-
-                        },
+                        onClick = { },
                         contentPadding = PaddingValues(8.dp),
                         shape = RoundedCornerShape(10.dp),
                         border = BorderStroke(1.dp, ThemeColor.border)
@@ -195,27 +204,72 @@ fun GoalFormScreen(
                     }
                 }
             }
+
+            // Start Date
             Column(
                 modifier = Modifier.fillMaxWidth(),
                 verticalArrangement = Arrangement.spacedBy(8.dp)
             ) {
                 Text(
-                    "Start Date",
+                    "Start Time",
                     style = MaterialTheme.typography.bodySmall
                 )
-                OutlinedTextField(
-                    modifier = Modifier.fillMaxWidth(),
-                    value = formState.goalName,
-                    onValueChange = {},
-                    colors = OutlinedTextFieldDefaults.colors(
-                        focusedBorderColor = ThemeColor.primary,
-                        unfocusedBorderColor = ThemeColor.border
-                    ),
-                    placeholder = {
-                        Text("e.g. Run a half marathon")
-                    }
-                )
+                Box(
+                    modifier = Modifier
+                        .fillMaxWidth()
+                        .clickable { showStartDateModal.value = true }
+                ) {
+                    OutlinedTextField(
+                        modifier = Modifier.fillMaxWidth(),
+                        value = formState.startAtDisplay,
+                        onValueChange = {},
+                        readOnly = true,
+                        enabled = false,
+                        colors = OutlinedTextFieldDefaults.colors(
+                            disabledBorderColor = ThemeColor.border,
+                            disabledTextColor = MaterialTheme.colorScheme.onSurface,
+                            disabledPlaceholderColor = MaterialTheme.colorScheme.onSurfaceVariant
+                        ),
+                        placeholder = {
+                            Text("Select a date")
+                        }
+                    )
+                }
             }
+
+            // Completed Date
+            Column(
+                modifier = Modifier.fillMaxWidth(),
+                verticalArrangement = Arrangement.spacedBy(8.dp)
+            ) {
+                Text(
+                    "Completed Time",
+                    style = MaterialTheme.typography.bodySmall
+                )
+                Box(
+                    modifier = Modifier
+                        .fillMaxWidth()
+                        .clickable { showCompletedDateModal.value = true }
+                ) {
+                    OutlinedTextField(
+                        modifier = Modifier.fillMaxWidth(),
+                        value = formState.completedAtDisplay,
+                        onValueChange = {},
+                        readOnly = true,
+                        enabled = false,
+                        colors = OutlinedTextFieldDefaults.colors(
+                            disabledBorderColor = ThemeColor.border,
+                            disabledTextColor = MaterialTheme.colorScheme.onSurface,
+                            disabledPlaceholderColor = MaterialTheme.colorScheme.onSurfaceVariant
+                        ),
+                        placeholder = {
+                            Text("Select a date (optional)")
+                        }
+                    )
+                }
+            }
+
+            // Notes
             Column(
                 modifier = Modifier.fillMaxWidth(),
                 verticalArrangement = Arrangement.spacedBy(8.dp)
@@ -226,7 +280,7 @@ fun GoalFormScreen(
                 )
                 OutlinedTextField(
                     modifier = Modifier.fillMaxWidth(),
-                    value = formState.goalName,
+                    value = formState.notes,
                     onValueChange = onNotesChange,
                     colors = OutlinedTextFieldDefaults.colors(
                         focusedBorderColor = ThemeColor.primary,
@@ -238,19 +292,97 @@ fun GoalFormScreen(
                     minLines = 2
                 )
             }
-            
-            if (showDateModal.value) {
+
+            // Start Date Modal
+            if (showStartDateModal.value) {
                 DatePickerModal(
-                    onDateSelected = onStartDateChange,
+                    onDateSelected = {
+                        onStartDateChange(it)
+                        if (it != null) {
+                            showStartTimeModal.value = true
+                        }
+                    },
                     onDismiss = {
-                        showDateModal.value = false
+                        showStartDateModal.value = false
                     }
                 )
             }
 
+            // Start Time Modal
+            if (showStartTimeModal.value) {
+                val tz = TimeZone.currentSystemDefault()
+                val startAt = formState.startAt
+                val currentHour = if (startAt != null) {
+                    kotlin.time.Instant.fromEpochMilliseconds(startAt).toLocalDateTime(tz).hour
+                } else {
+                    val nowMillis = Clock.System.now().toEpochMilliseconds()
+                    kotlin.time.Instant.fromEpochMilliseconds(nowMillis).toLocalDateTime(tz).hour
+                }
+                val currentMinute = if (startAt != null) {
+                    kotlin.time.Instant.fromEpochMilliseconds(startAt).toLocalDateTime(tz).minute
+                } else {
+                    val nowMillis = Clock.System.now().toEpochMilliseconds()
+                    kotlin.time.Instant.fromEpochMilliseconds(nowMillis).toLocalDateTime(tz).minute
+                }
+                TimePickerModal(
+                    initialHour = currentHour,
+                    initialMinute = currentMinute,
+                    onTimeSelected = { hour, minute ->
+                        onStartTimeChange(hour, minute)
+                    },
+                    onDismiss = {
+                        showStartTimeModal.value = false
+                    }
+                )
+            }
+
+            // Completed Date Modal
+            if (showCompletedDateModal.value) {
+                DatePickerModal(
+                    onDateSelected = {
+                        onCompletedDateChange(it)
+                        if (it != null) {
+                            showCompletedTimeModal.value = true
+                        }
+                    },
+                    onDismiss = {
+                        showCompletedDateModal.value = false
+                    }
+                )
+            }
+
+            // Completed Time Modal
+            if (showCompletedTimeModal.value) {
+                val tz = TimeZone.currentSystemDefault()
+                val completedAt = formState.completedAt
+                val currentHour = if (completedAt != null) {
+                    kotlin.time.Instant.fromEpochMilliseconds(completedAt).toLocalDateTime(tz).hour
+                } else {
+                    val nowMillis = Clock.System.now().toEpochMilliseconds()
+                    kotlin.time.Instant.fromEpochMilliseconds(nowMillis).toLocalDateTime(tz).hour
+                }
+                val currentMinute = if (completedAt != null) {
+                    kotlin.time.Instant.fromEpochMilliseconds(completedAt)
+                        .toLocalDateTime(tz).minute
+                } else {
+                    val nowMillis = Clock.System.now().toEpochMilliseconds()
+                    kotlin.time.Instant.fromEpochMilliseconds(nowMillis).toLocalDateTime(tz).minute
+                }
+                TimePickerModal(
+                    initialHour = currentHour,
+                    initialMinute = currentMinute,
+                    onTimeSelected = { hour, minute ->
+                        onCompletedTimeChange(hour, minute)
+                    },
+                    onDismiss = {
+                        showCompletedTimeModal.value = false
+                    }
+                )
+            }
+
+            // Buttons
             Row(
                 horizontalArrangement = Arrangement.spacedBy(16.dp),
-
             ) {
                 Button(
                     modifier = Modifier.weight(1F),
@@ -258,9 +390,7 @@ fun GoalFormScreen(
                     contentPadding = PaddingValues(18.dp, 10.dp),
                     onClick = onCancel,
                 ) {
-                    Text(
-                        "Cancel",
-                    )
+                    Text("Cancel")
                 }
                 Button(
                     modifier = Modifier.weight(1F),
@@ -271,14 +401,13 @@ fun GoalFormScreen(
                     contentPadding = PaddingValues(18.dp, 10.dp),
                     shape = RoundedCornerShape(10.dp),
                     onClick = {
-                        // TODO: check is validate
                         onAdd(
                             Goal(
                                 0,
                                 formState.goalName,
                                 GoalStatus.NEW.value,
                                 Clock.System.now().toEpochMilliseconds(),
-                                null,
+                                formState.completedAt,
                                 formState.startAt,
                             )
                         )
@@ -312,10 +441,48 @@ fun DatePickerModal(
             TextButton(onClick = onDismiss) {
                 Text("Cancel")
             }
-        }
+        },
+        colors = DatePickerDefaults.colors(
+            containerColor = ThemeColor.onBackground
+        )
     ) {
         DatePicker(state = datePickerState)
     }
+}
+
+@OptIn(ExperimentalMaterial3Api::class)
+@Composable
+fun TimePickerModal(
+    initialHour: Int = 0,
+    initialMinute: Int = 0,
+    onTimeSelected: (Int, Int) -> Unit,
+    onDismiss: () -> Unit
+) {
+    val timePickerState = rememberTimePickerState(
+        initialHour = initialHour,
+        initialMinute = initialMinute
+    )
+
+    AlertDialog(
+        onDismissRequest = onDismiss,
+        confirmButton = {
+            TextButton(onClick = {
+                onTimeSelected(timePickerState.hour, timePickerState.minute)
+                onDismiss()
+            }) {
+                Text("OK")
+            }
+        },
+        dismissButton = {
+            TextButton(onClick = onDismiss) {
+                Text("Cancel")
+            }
+        },
+        containerColor = ThemeColor.onBackground,
+        text = {
+            TimePicker(state = timePickerState)
+        }
+    )
 }
 
 @Composable
@@ -331,7 +498,6 @@ fun ParameterLists(modifier: Modifier = Modifier, parameters: List<Parameter>) {
             ) {
                 Column {
                     Text("Name")
-                    // TODO custom text filed with not padding
                     OutlinedTextField(
                         modifier = Modifier.width(80.dp),
                         value = parameters.name,
@@ -395,7 +561,12 @@ fun ParameterLists(modifier: Modifier = Modifier, parameters: List<Parameter>) {
 }
 
 @Composable
-fun <T> InputMenu(show: Boolean, choices: List<T>, onChange: (T) -> Unit, onDismissRequest: () -> Unit = {}) {
+fun <T> InputMenu(
+    show: Boolean,
+    choices: List<T>,
+    onChange: (T) -> Unit,
+    onDismissRequest: () -> Unit = {}
+) {
     if (show) {
         DropdownMenu(
             show,
@@ -440,7 +611,7 @@ fun ParameterListsPreview() {
                     0,
                     0,
                     "LMAO",
-                    ParameterType. STRING.value,
+                    ParameterType.STRING.value,
                 )
             )
         )
