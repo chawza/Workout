@@ -35,10 +35,12 @@ object ThemeColor {
     val primary = Color(0xFFFF6B4A)
     val white  = Color(0xFFffffff)
     val border = Color(0xFFE5E7EB)
+    val borderSoft = Color(0xFFF3F4F6)
     val onBackground = Color(0xFFFFFFFF)
 
     val success = Color(0xFF10B981)
     val muted = Color(0xFF6B7280)
+    val danger = Color(0xFFEF4444)
 }
 
 @Composable
