@@ -14,6 +14,7 @@ import androidx.compose.foundation.layout.Spacer
 import androidx.compose.foundation.layout.fillMaxWidth
 import androidx.compose.foundation.layout.padding
 import androidx.compose.foundation.lazy.LazyColumn
+import androidx.compose.foundation.lazy.items
 import androidx.compose.foundation.shape.RoundedCornerShape
 import androidx.compose.material3.Button
 import androidx.compose.material3.ButtonDefaults
@@ -120,12 +121,12 @@ fun GoalIndexScreen(
                 "Active",
                 Modifier.padding(bottom = 12.dp)
             )
+            // TODO: placeholder on empty
             LazyColumn(
                 modifier = Modifier.fillMaxWidth(),
                 verticalArrangement = Arrangement.spacedBy(12.dp)
             ) {
-                items(activeGoals.size) { idx ->
-                    val goal = activeGoals[idx]
+                items(items = activeGoals, key = { goal -> goal.id }) { goal ->
                     GoalCard(goal, onDelete = onDelete)
                 }
             }
@@ -136,12 +137,12 @@ fun GoalIndexScreen(
                 "New",
                 Modifier.padding(bottom = 12.dp)
             )
+            // TODO: placeholder on empty
             LazyColumn(
                 modifier = Modifier.fillMaxWidth(),
                 verticalArrangement = Arrangement.spacedBy(12.dp)
             ) {
-                items(newGoals.size) { idx ->
-                    val goal = newGoals[idx]
+                items(items = newGoals, key = { goal -> goal.id }) { goal ->
                     GoalCard(goal, onDelete = onDelete)
                 }
             }
