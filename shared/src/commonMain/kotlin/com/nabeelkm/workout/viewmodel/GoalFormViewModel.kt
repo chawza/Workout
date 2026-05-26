@@ -41,30 +41,32 @@ class GoalFormViewModel(
 ): ViewModel() {
     private val _formState = MutableStateFlow(FormState())
     val formState = _formState.asStateFlow()
-    var existingGoal: Goal? = null
+    private val _existingGoal = MutableStateFlow<Goal?>(null)
+    val existingGoal = _existingGoal.asStateFlow()
 
     init {
-        goalId?.let { id ->
-            viewModelScope.launch {
-                existingGoal = withContext(Dispatchers.IO) {
-                    goalRepository.getById(id)
+        loadExistingGoal()
+    }
+
+    fun loadExistingGoal() {
+        val id = goalId ?: return
+        viewModelScope.launch {
+            val goal = withContext(Dispatchers.IO) {
+                goalRepository.getById(id)
+            }
+            if (goal != null) {
+                _existingGoal.value = goal
+                _formState.update { state ->
+                    state.copy(
+                        goalName = goal.name,
+                        startAt = goal.startAt,
+                        completedAt = goal.completedAt,
+                        startAtDisplay = goal.startAt?.let { formatDateTime(it) } ?: "",
+                        completedAtDisplay = goal.completedAt?.let { formatDateTime(it) } ?: "",
+                    )
                 }
-                if (existingGoal != null) {
-                    _formState.update { state ->
-                        val goal = existingGoal!!
-                        state.copy(
-                            goalName = goal.name,
-                            startAt = goal.startAt,
-                            completedAt = goal.completedAt,
-                            startAtDisplay = goal.startAt?.let { startAt -> formatDateTime(startAt) } as String,
-                            completedAtDisplay = goal.completedAt?.let { completedAt -> formatDateTime(completedAt) } as String,
-                        )
-                    }
-                } else {
-                    // TODO: show toast not valid
-                    navigator.setRoot(Screen.GoalIndex)
-                    return@launch
-                }
+            } else {
+                navigator.setRoot(Screen.GoalIndex)
             }
         }
     }
@@ -88,13 +90,12 @@ class GoalFormViewModel(
         navigator.goBack()
     }
     fun onUpdate() = viewModelScope.launch {
-        if (existingGoal == null) return@launch
-
-        val goal = existingGoal!!
+        val goal = _existingGoal.value ?: return@launch
         val state = _formState.value
 
 
         val updatedGoal = goal.copy(
+            id = goal.id,
             name = state.goalName,
             startAt = state.startAt,
             completedAt = state.completedAt

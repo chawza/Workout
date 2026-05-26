@@ -42,6 +42,7 @@ import androidx.compose.material3.TopAppBarDefaults
 import androidx.compose.material3.rememberDatePickerState
 import androidx.compose.material3.rememberTimePickerState
 import androidx.compose.runtime.Composable
+import androidx.compose.runtime.LaunchedEffect
 import androidx.compose.runtime.collectAsState
 import androidx.compose.runtime.getValue
 import androidx.compose.runtime.mutableStateOf
@@ -73,9 +74,16 @@ fun GoalFormScreen(
     viewModel: GoalFormViewModel = koinViewModel(),
     navigator: Navigator,
 ) {
+    LaunchedEffect(viewModel.goalId) {
+        viewModel.loadExistingGoal()
+    }
+    val existingGoal by viewModel.existingGoal.collectAsState()
+
     GoalFormScreen(
+        existing = existingGoal,
         formStateFlow = viewModel.formState,
         onAdd = viewModel::addGoal,
+        onEdit = viewModel::onUpdate,
         onCancel = {
             navigator.goBack()
         },
@@ -91,8 +99,9 @@ fun GoalFormScreen(
 @Composable
 fun GoalFormScreen(
     existing: Goal? = null,
-    onAdd: () -> Unit,
     formStateFlow: StateFlow<FormState>,
+    onAdd: () -> Unit = {},
+    onEdit: () -> Unit = {},
     onCancel: () -> Unit = {},
     onNameChange: (String) -> Unit = {},
     onStartDateChange: (Long?) -> Unit = {},
@@ -111,7 +120,7 @@ fun GoalFormScreen(
                         horizontalArrangement = Arrangement.SpaceBetween
                     ) {
                         Text(
-                            text = if (existing != null) "New Goal"  else "Update Goal" ,
+                            text = if (existing != null) "Update Goal"  else "New Goal" ,
                             style = MaterialTheme.typography.titleMedium
                         )
                         Button(
@@ -405,7 +414,10 @@ fun GoalFormScreen(
                     ),
                     contentPadding = PaddingValues(18.dp, 10.dp),
                     shape = RoundedCornerShape(10.dp),
-                    onClick = onAdd,
+                    onClick = {
+                        if (existing == null) onAdd()
+                        else onEdit()
+                    },
                 ) {
                     if(existing != null) {
                         Text("Update")
