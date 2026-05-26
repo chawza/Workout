@@ -12,6 +12,7 @@ import androidx.compose.foundation.layout.PaddingValues
 import androidx.compose.foundation.layout.Row
 import androidx.compose.foundation.layout.Spacer
 import androidx.compose.foundation.layout.fillMaxWidth
+import androidx.compose.foundation.layout.height
 import androidx.compose.foundation.layout.padding
 import androidx.compose.foundation.lazy.LazyColumn
 import androidx.compose.foundation.lazy.items
@@ -111,40 +112,35 @@ fun GoalIndexScreen(
     ) { innerPadding ->
         val activeGoals by activeGoalsStateFlow.collectAsStateWithLifecycle()
         val newGoals by newGoalsStateFlow.collectAsStateWithLifecycle()
-        Column(
+        LazyColumn(
             modifier = Modifier
                 .padding(innerPadding)
-                .padding(16.dp)
-                .fillMaxWidth()
+                .fillMaxWidth(),
+            contentPadding = PaddingValues(16.dp, 16.dp, 16.dp, 100.dp),
+            verticalArrangement = Arrangement.spacedBy(12.dp)
         ) {
-            Text(
-                "Active",
-                Modifier.padding(bottom = 12.dp)
-            )
-            // TODO: placeholder on empty
-            LazyColumn(
-                modifier = Modifier.fillMaxWidth(),
-                verticalArrangement = Arrangement.spacedBy(12.dp)
-            ) {
-                items(items = activeGoals, key = { goal -> goal.id }) { goal ->
-                    GoalCard(goal, onDelete = onDelete)
-                }
+            item {
+                Text(
+                    "Active",
+                    Modifier.padding(bottom = 12.dp)
+                )
+            }
+            items(items = activeGoals, key = { goal -> "active_${goal.id}" }) { goal ->
+                GoalCard(goal, onDelete = onDelete)
             }
 
-            HorizontalDivider(thickness = 32.dp, color = Color.Unspecified)
+            item {
+                Spacer(Modifier.height(20.dp))
+            }
 
-            Text(
-                "New",
-                Modifier.padding(bottom = 12.dp)
-            )
-            // TODO: placeholder on empty
-            LazyColumn(
-                modifier = Modifier.fillMaxWidth(),
-                verticalArrangement = Arrangement.spacedBy(12.dp)
-            ) {
-                items(items = newGoals, key = { goal -> goal.id }) { goal ->
-                    GoalCard(goal, onDelete = onDelete)
-                }
+            item {
+                Text(
+                    "New",
+                    Modifier.padding(bottom = 12.dp)
+                )
+            }
+            items(items = newGoals, key = { goal -> "new_${goal.id}" }) { goal ->
+                GoalCard(goal, onDelete = onDelete)
             }
         }
 

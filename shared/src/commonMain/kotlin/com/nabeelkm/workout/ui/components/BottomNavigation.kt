@@ -31,7 +31,7 @@ import workout.shared.generated.resources.settings
 fun BottomNavigation(navigation: Navigator) {
     val currentScreen = navigation.currentScreenFlow.collectAsStateWithLifecycle(null)
     BottomAppBar(
-        modifier = Modifier.padding(14.dp).fillMaxWidth(),
+        modifier = Modifier.fillMaxWidth(),
         contentPadding = PaddingValues(0.dp)
     ) {
         Row(
