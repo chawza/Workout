@@ -67,7 +67,10 @@ fun GoalIndexScreen(
         activeGoalsStateFlow = viewModel.activeGoals,
         newGoalsStateFlow = viewModel.newGoals,
         navigator = navigator,
-        onDelete = viewModel::deleteGoal
+        onDelete = viewModel::deleteGoal,
+        onEdit = { goal ->
+            navigator.navigate(Screen.GoalEditForm(goalId = goal.id))
+        }
     )
 }
 @Composable
@@ -75,7 +78,8 @@ fun GoalIndexScreen(
     activeGoalsStateFlow: StateFlow<List<Goal>>,
     newGoalsStateFlow: StateFlow<List<Goal>>,
     navigator: Navigator,
-    onDelete: (Goal) -> Unit = {}
+    onDelete: (Goal) -> Unit = {},
+    onEdit: (Goal) -> Unit = {}
 ) {
     Scaffold(
         topBar = {
@@ -126,7 +130,7 @@ fun GoalIndexScreen(
                 )
             }
             items(items = activeGoals, key = { goal -> "active_${goal.id}" }) { goal ->
-                GoalCard(goal, onDelete = onDelete)
+                GoalCard(goal, onDelete = onDelete, onEdit = onEdit)
             }
 
             item {
@@ -140,7 +144,7 @@ fun GoalIndexScreen(
                 )
             }
             items(items = newGoals, key = { goal -> "new_${goal.id}" }) { goal ->
-                GoalCard(goal, onDelete = onDelete)
+                GoalCard(goal, onDelete = onDelete, onEdit = onEdit)
             }
         }
 
@@ -258,7 +262,9 @@ fun GoalCard(goal: Goal, onDelete: (Goal) -> Unit = {}, onEdit: (Goal) -> Unit =
                 horizontalArrangement = Arrangement.spacedBy(8.dp)
             ) {
                 Button(
-                    onClick = {},
+                    onClick = {
+                        onEdit(goal)
+                    },
                     shape = RoundedCornerShape(10.dp),
                     border = BorderStroke(1.dp, ThemeColor.border),
                     contentPadding = PaddingValues(12.dp, 6.dp),

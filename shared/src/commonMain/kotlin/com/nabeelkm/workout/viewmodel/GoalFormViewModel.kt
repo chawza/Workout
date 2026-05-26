@@ -2,7 +2,9 @@ package com.nabeelkm.workout.viewmodel
 
 import androidx.lifecycle.ViewModel
 import androidx.lifecycle.viewModelScope
+import com.nabeelkm.workout.Screen
 import com.nabeelkm.workout.entity.Goal
+import com.nabeelkm.workout.entity.GoalStatus
 import com.nabeelkm.workout.entity.Parameter
 import com.nabeelkm.workout.navigation.Navigator
 import com.nabeelkm.workout.repository.GoalRepository
@@ -13,13 +15,13 @@ import kotlinx.coroutines.flow.asStateFlow
 import kotlinx.coroutines.flow.update
 import kotlinx.coroutines.launch
 import kotlinx.coroutines.withContext
-import kotlinx.datetime.Instant
 import kotlinx.datetime.LocalDateTime
 import kotlinx.datetime.LocalTime
 import kotlinx.datetime.TimeZone
 import kotlinx.datetime.toInstant
 import kotlinx.datetime.toLocalDateTime
 import kotlin.time.Clock
+import kotlin.time.Instant
 
 
 data class FormState(
@@ -34,14 +36,72 @@ data class FormState(
 
 class GoalFormViewModel(
     val goalRepository: GoalRepository,
-    val navigator: Navigator
+    val navigator: Navigator,
+    val goalId: Int? = null,
 ): ViewModel() {
     private val _formState = MutableStateFlow(FormState())
     val formState = _formState.asStateFlow()
+    var existingGoal: Goal? = null
 
-    fun addGoal(goal: Goal) = viewModelScope.launch {
+    init {
+        goalId?.let { id ->
+            viewModelScope.launch {
+                existingGoal = withContext(Dispatchers.IO) {
+                    goalRepository.getById(id)
+                }
+                if (existingGoal != null) {
+                    _formState.update { state ->
+                        val goal = existingGoal!!
+                        state.copy(
+                            goalName = goal.name,
+                            startAt = goal.startAt,
+                            completedAt = goal.completedAt,
+                            startAtDisplay = goal.startAt?.let { startAt -> formatDateTime(startAt) } as String,
+                            completedAtDisplay = goal.completedAt?.let { completedAt -> formatDateTime(completedAt) } as String,
+                        )
+                    }
+                } else {
+                    // TODO: show toast not valid
+                    navigator.setRoot(Screen.GoalIndex)
+                    return@launch
+                }
+            }
+        }
+    }
+
+    fun addGoal() = viewModelScope.launch {
+        val formState = _formState.value
+
+        val newGoal = Goal(
+            0,
+            formState.goalName,
+            GoalStatus.NEW.value,
+            Clock.System.now().toEpochMilliseconds(),
+            formState.completedAt,
+            formState.startAt,
+        )
+
         withContext(Dispatchers.IO) {
-            goalRepository.insertOne(goal)
+            goalRepository.insertOne(newGoal)
+        }
+
+        navigator.goBack()
+    }
+    fun onUpdate() = viewModelScope.launch {
+        if (existingGoal == null) return@launch
+
+        val goal = existingGoal!!
+        val state = _formState.value
+
+
+        val updatedGoal = goal.copy(
+            name = state.goalName,
+            startAt = state.startAt,
+            completedAt = state.completedAt
+        )
+
+        withContext(Dispatchers.IO) {
+            goalRepository.upsert(updatedGoal)
         }
 
         navigator.goBack()
@@ -59,13 +119,13 @@ class GoalFormViewModel(
         if (dateMillis == null) return
         _formState.update { state ->
             val tz = TimeZone.currentSystemDefault()
-            val selectedDate = kotlin.time.Instant.fromEpochMilliseconds(dateMillis).toLocalDateTime(tz).date
+            val selectedDate = Instant.fromEpochMilliseconds(dateMillis).toLocalDateTime(tz).date
             val newDateTime = if (state.startAt != null) {
-                val current = kotlin.time.Instant.fromEpochMilliseconds(state.startAt).toLocalDateTime(tz)
+                val current = Instant.fromEpochMilliseconds(state.startAt).toLocalDateTime(tz)
                 LocalDateTime(selectedDate, current.time)
             } else {
                 val nowMillis = Clock.System.now().toEpochMilliseconds()
-                val now = kotlin.time.Instant.fromEpochMilliseconds(nowMillis).toLocalDateTime(tz)
+                val now = Instant.fromEpochMilliseconds(nowMillis).toLocalDateTime(tz)
                 LocalDateTime(selectedDate, now.time)
             }
             val newStartAt = newDateTime.toInstant(tz).toEpochMilliseconds()
@@ -80,11 +140,11 @@ class GoalFormViewModel(
         _formState.update { state ->
             val tz = TimeZone.currentSystemDefault()
             val newDateTime = if (state.startAt != null) {
-                val current = kotlin.time.Instant.fromEpochMilliseconds(state.startAt).toLocalDateTime(tz)
+                val current = Instant.fromEpochMilliseconds(state.startAt).toLocalDateTime(tz)
                 LocalDateTime(current.date, LocalTime(hour, minute, 0))
             } else {
                 val todayMillis = Clock.System.now().toEpochMilliseconds()
-                val today = kotlin.time.Instant.fromEpochMilliseconds(todayMillis).toLocalDateTime(tz).date
+                val today = Instant.fromEpochMilliseconds(todayMillis).toLocalDateTime(tz).date
                 LocalDateTime(today, LocalTime(hour, minute, 0))
             }
             val newStartAt = newDateTime.toInstant(tz).toEpochMilliseconds()
@@ -101,7 +161,7 @@ class GoalFormViewModel(
             val tz = TimeZone.currentSystemDefault()
             val selectedDate = Instant.fromEpochMilliseconds(dateMillis).toLocalDateTime(tz).date
             val newDateTime = if (state.completedAt != null) {
-                val current = kotlin.time.Instant.fromEpochMilliseconds(state.completedAt).toLocalDateTime(tz)
+                val current = Instant.fromEpochMilliseconds(state.completedAt).toLocalDateTime(tz)
                 LocalDateTime(selectedDate, current.time)
             } else {
                 val nowMillis = Clock.System.now().toEpochMilliseconds()
@@ -124,7 +184,7 @@ class GoalFormViewModel(
                 LocalDateTime(current.date, LocalTime(hour, minute, 0))
             } else {
                 val todayMillis = Clock.System.now().toEpochMilliseconds()
-                val today = kotlin.time.Instant.fromEpochMilliseconds(todayMillis).toLocalDateTime(tz).date
+                val today = Instant.fromEpochMilliseconds(todayMillis).toLocalDateTime(tz).date
                 LocalDateTime(today, LocalTime(hour, minute, 0))
             }
             val newCompletedAt = newDateTime.toInstant(tz).toEpochMilliseconds()
@@ -146,7 +206,7 @@ class GoalFormViewModel(
 
 private fun formatDateTime(epochMillis: Long): String {
     val tz = TimeZone.currentSystemDefault()
-    val dt = kotlin.time.Instant.fromEpochMilliseconds(epochMillis).toLocalDateTime(tz)
+    val dt = Instant.fromEpochMilliseconds(epochMillis).toLocalDateTime(tz)
     val amPm = if (dt.hour < 12) "AM" else "PM"
     val hour12 = when {
         dt.hour == 0 -> 12

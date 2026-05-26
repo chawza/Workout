@@ -21,4 +21,12 @@ class GoalRepository(
     suspend fun delete(goal: Goal) {
         dao.delete(goal)
     }
+
+    suspend fun getById(id: Int): Goal? {
+        return dao.getById(id)
+    }
+
+    suspend fun upsert(goal: Goal) {
+        dao.upsert(goal)
+    }
 }
