@@ -2,7 +2,6 @@ package com.nabeelkm.workout.entity
 
 import androidx.room.Entity
 import androidx.room.PrimaryKey
-import org.koin.core.logger.Logger
 
 enum class GoalStatus(
     val value: Int,

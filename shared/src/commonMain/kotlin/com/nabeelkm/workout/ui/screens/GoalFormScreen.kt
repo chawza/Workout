@@ -42,6 +42,7 @@ import androidx.compose.material3.TopAppBarDefaults
 import androidx.compose.material3.rememberDatePickerState
 import androidx.compose.material3.rememberTimePickerState
 import androidx.compose.runtime.Composable
+import androidx.compose.runtime.LaunchedEffect
 import androidx.compose.runtime.collectAsState
 import androidx.compose.runtime.getValue
 import androidx.compose.runtime.mutableStateOf
@@ -53,7 +54,6 @@ import androidx.compose.ui.text.font.FontWeight
 import androidx.compose.ui.tooling.preview.Preview
 import androidx.compose.ui.unit.dp
 import com.nabeelkm.workout.entity.Goal
-import com.nabeelkm.workout.entity.GoalStatus
 import com.nabeelkm.workout.entity.Parameter
 import com.nabeelkm.workout.entity.ParameterType
 import com.nabeelkm.workout.navigation.Navigator
@@ -72,11 +72,18 @@ import kotlin.time.Clock
 @Composable
 fun GoalFormScreen(
     viewModel: GoalFormViewModel = koinViewModel(),
-    navigator: Navigator
+    navigator: Navigator,
 ) {
+    LaunchedEffect(viewModel.goalId) {
+        viewModel.loadExistingGoal()
+    }
+    val existingGoal by viewModel.existingGoal.collectAsState()
+
     GoalFormScreen(
+        existing = existingGoal,
         formStateFlow = viewModel.formState,
         onAdd = viewModel::addGoal,
+        onEdit = viewModel::onUpdate,
         onCancel = {
             navigator.goBack()
         },
@@ -91,8 +98,10 @@ fun GoalFormScreen(
 
 @Composable
 fun GoalFormScreen(
-    onAdd: (Goal) -> Unit,
+    existing: Goal? = null,
     formStateFlow: StateFlow<FormState>,
+    onAdd: () -> Unit = {},
+    onEdit: () -> Unit = {},
     onCancel: () -> Unit = {},
     onNameChange: (String) -> Unit = {},
     onStartDateChange: (Long?) -> Unit = {},
@@ -111,7 +120,7 @@ fun GoalFormScreen(
                         horizontalArrangement = Arrangement.SpaceBetween
                     ) {
                         Text(
-                            "New Goal",
+                            text = if (existing != null) "Update Goal"  else "New Goal" ,
                             style = MaterialTheme.typography.titleMedium
                         )
                         Button(
@@ -388,6 +397,11 @@ fun GoalFormScreen(
                     modifier = Modifier.weight(1F),
                     shape = RoundedCornerShape(10.dp),
                     contentPadding = PaddingValues(18.dp, 10.dp),
+                    colors = ButtonDefaults.buttonColors(
+                        containerColor = ThemeColor.white,
+                        contentColor = ThemeColor.textBlack
+                    ),
+                    border = BorderStroke(1.dp, ThemeColor.border),
                     onClick = onCancel,
                 ) {
                     Text("Cancel")
@@ -401,19 +415,15 @@ fun GoalFormScreen(
                     contentPadding = PaddingValues(18.dp, 10.dp),
                     shape = RoundedCornerShape(10.dp),
                     onClick = {
-                        onAdd(
-                            Goal(
-                                0,
-                                formState.goalName,
-                                GoalStatus.NEW.value,
-                                Clock.System.now().toEpochMilliseconds(),
-                                formState.completedAt,
-                                formState.startAt,
-                            )
-                        )
+                        if (existing == null) onAdd()
+                        else onEdit()
                     },
                 ) {
-                    Text("Save Goal")
+                    if(existing != null) {
+                        Text("Update")
+                    } else {
+                        Text("Save Goal")
+                    }
                 }
             }
         }
@@ -588,7 +598,7 @@ fun <T> InputMenu(
 fun GoalFormScreenPreview() {
     val formState = MutableStateFlow(
         FormState(
-            parameters = listOf<Parameter>()
+            parameters = listOf()
         )
     )
     Theme {

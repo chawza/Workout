@@ -12,8 +12,10 @@ import androidx.compose.foundation.layout.PaddingValues
 import androidx.compose.foundation.layout.Row
 import androidx.compose.foundation.layout.Spacer
 import androidx.compose.foundation.layout.fillMaxWidth
+import androidx.compose.foundation.layout.height
 import androidx.compose.foundation.layout.padding
 import androidx.compose.foundation.lazy.LazyColumn
+import androidx.compose.foundation.lazy.items
 import androidx.compose.foundation.shape.RoundedCornerShape
 import androidx.compose.material3.Button
 import androidx.compose.material3.ButtonDefaults
@@ -47,13 +49,13 @@ import com.nabeelkm.workout.viewmodel.GoalIndexViewModel
 import kotlinx.coroutines.flow.MutableStateFlow
 import kotlinx.coroutines.flow.StateFlow
 import kotlinx.coroutines.flow.asStateFlow
-import kotlinx.datetime.Instant
 import kotlinx.datetime.LocalDateTime
 import kotlinx.datetime.TimeZone
 import kotlinx.datetime.format.MonthNames
 import kotlinx.datetime.format.char
 import kotlinx.datetime.toLocalDateTime
 import org.koin.compose.viewmodel.koinViewModel
+import kotlin.time.Instant
 
 
 @Composable
@@ -62,14 +64,22 @@ fun GoalIndexScreen(
     navigator: Navigator
 ) {
     GoalIndexScreen(
-        goalsStateFlow = viewModel.goalsState,
-        navigator
+        activeGoalsStateFlow = viewModel.activeGoals,
+        newGoalsStateFlow = viewModel.newGoals,
+        navigator = navigator,
+        onDelete = viewModel::deleteGoal,
+        onEdit = { goal ->
+            navigator.navigate(Screen.GoalEditForm(goalId = goal.id))
+        }
     )
 }
 @Composable
 fun GoalIndexScreen(
-    goalsStateFlow: StateFlow<List<Goal>>,
-    navigator: Navigator
+    activeGoalsStateFlow: StateFlow<List<Goal>>,
+    newGoalsStateFlow: StateFlow<List<Goal>>,
+    navigator: Navigator,
+    onDelete: (Goal) -> Unit = {},
+    onEdit: (Goal) -> Unit = {}
 ) {
     Scaffold(
         topBar = {
@@ -104,25 +114,37 @@ fun GoalIndexScreen(
             )
         }
     ) { innerPadding ->
-        val goals by goalsStateFlow.collectAsStateWithLifecycle()
-        Column(
+        val activeGoals by activeGoalsStateFlow.collectAsStateWithLifecycle()
+        val newGoals by newGoalsStateFlow.collectAsStateWithLifecycle()
+        LazyColumn(
             modifier = Modifier
                 .padding(innerPadding)
-                .padding(16.dp)
-                .fillMaxWidth()
+                .fillMaxWidth(),
+            contentPadding = PaddingValues(16.dp, 16.dp, 16.dp, 100.dp),
+            verticalArrangement = Arrangement.spacedBy(12.dp)
         ) {
-            Text(
-                "Active",
-                Modifier.padding(bottom = 12.dp)
-            )
-            LazyColumn(
-                modifier = Modifier.fillMaxWidth(),
-                verticalArrangement = Arrangement.spacedBy(12.dp)
-            ) {
-                items(goals.size) { idx ->
-                    val goal = goals[idx]
-                    GoalCard(goal)
-                }
+            item {
+                Text(
+                    "Active",
+                    Modifier.padding(bottom = 12.dp)
+                )
+            }
+            items(items = activeGoals, key = { goal -> "active_${goal.id}" }) { goal ->
+                GoalCard(goal, onDelete = onDelete, onEdit = onEdit)
+            }
+
+            item {
+                Spacer(Modifier.height(20.dp))
+            }
+
+            item {
+                Text(
+                    "New",
+                    Modifier.padding(bottom = 12.dp)
+                )
+            }
+            items(items = newGoals, key = { goal -> "new_${goal.id}" }) { goal ->
+                GoalCard(goal, onDelete = onDelete, onEdit = onEdit)
             }
         }
 
@@ -154,7 +176,7 @@ fun Pill(text: String, modifier: Modifier = Modifier, color: Color) {
 }
 
 @Composable
-fun DangerTestButton(text: String, modifier: Modifier = Modifier, onClick: () -> Unit = {}) {
+fun DangerTextButton(text: String, modifier: Modifier = Modifier, onClick: () -> Unit = {}) {
     val interactionSource = remember { MutableInteractionSource() }
     val isHover by interactionSource.collectIsHoveredAsState()
     val isPressed by interactionSource.collectIsPressedAsState()
@@ -178,7 +200,7 @@ fun DangerTestButton(text: String, modifier: Modifier = Modifier, onClick: () ->
 }
 
 @Composable
-fun GoalCard(goal: Goal) {
+fun GoalCard(goal: Goal, onDelete: (Goal) -> Unit = {}, onEdit: (Goal) -> Unit = {}) {
     Card(
         modifier = Modifier
             .border(1.dp, ThemeColor.border, RoundedCornerShape(10.dp))
@@ -197,13 +219,13 @@ fun GoalCard(goal: Goal) {
             } else if (goal.startAt != null && goal.completedAt != null) {
                 val startedText = ShortMonthDateFormat.format(goal.startAt.toLocalDatetime())
                 val endText = ShortMonthDateFormat.format(goal.completedAt.toLocalDatetime())
-                displayText = "${startedText} - ${endText}"
+                displayText = "$startedText - $endText"
             } else if (goal.startAt != null) {
                 val startedText = ShortMonthDateFormat.format(goal.startAt.toLocalDatetime())
-                displayText = "Started ${startedText}"
+                displayText = "Started $startedText"
             } else if (goal.completedAt != null) {
                 val endText = ShortMonthDateFormat.format(goal.completedAt.toLocalDatetime())
-                displayText = "Ended ${endText}"
+                displayText = "Ended $endText"
             }
 
             Row(
@@ -240,7 +262,9 @@ fun GoalCard(goal: Goal) {
                 horizontalArrangement = Arrangement.spacedBy(8.dp)
             ) {
                 Button(
-                    onClick = {},
+                    onClick = {
+                        onEdit(goal)
+                    },
                     shape = RoundedCornerShape(10.dp),
                     border = BorderStroke(1.dp, ThemeColor.border),
                     contentPadding = PaddingValues(12.dp, 6.dp),
@@ -248,8 +272,11 @@ fun GoalCard(goal: Goal) {
                 ) {
                     Text("Edit", style = MaterialTheme.typography.bodySmall)
                 }
-                DangerTestButton(
-                    "Delete"
+                DangerTextButton(
+                    "Delete",
+                    onClick = {
+                        onDelete(goal)
+                    }
                 )
             }
         }
@@ -320,9 +347,30 @@ fun GoalIndexScreenPreview() {
             )
         )
     ).asStateFlow()
+    val newStateFlow = MutableStateFlow(
+        listOf(
+            Goal(
+                0,
+                "Running",
+                status = GoalStatus.NEW.value,
+                createdAt = Instant.parse("2024-05-24T10:30:00Z").toEpochMilliseconds(),
+                completedAt = null,
+                startAt = 1750611600000
+            ),
+            Goal(
+                0,
+                "Rucking",
+                status = GoalStatus.NEW.value,
+                createdAt = Instant.parse("2024-05-24T10:30:00Z").toEpochMilliseconds(),
+                completedAt = null,
+                startAt = 1750611600000
+            )
+        )
+    ).asStateFlow()
     Theme {
         GoalIndexScreen(
             goalsStateFlow,
+            newStateFlow,
             Navigator(SnapshotStateList())
         )
     }
