@@ -6,8 +6,10 @@ import com.nabeelkm.workout.database.AppDatabase
 import com.nabeelkm.workout.database.getDatabaseBuilder
 import com.nabeelkm.workout.navigation.Navigator
 import com.nabeelkm.workout.repository.GoalRepository
+import com.nabeelkm.workout.ui.screens.GoalDetailScreen
 import com.nabeelkm.workout.ui.screens.GoalFormScreen
 import com.nabeelkm.workout.ui.screens.GoalIndexScreen
+import com.nabeelkm.workout.viewmodel.GoalDetailViewModel
 import com.nabeelkm.workout.viewmodel.GoalFormViewModel
 import com.nabeelkm.workout.viewmodel.GoalIndexViewModel
 import org.koin.compose.viewmodel.koinViewModel
@@ -27,6 +29,7 @@ val sharedModule = module {
     singleOf(::GoalRepository)
     viewModelOf(::GoalIndexViewModel)
     viewModelOf(::GoalFormViewModel)
+    viewModelOf(::GoalDetailViewModel)
 
     single { (backStack: SnapshotStateList<Screen>) ->
         Navigator(backStack)
@@ -36,6 +39,13 @@ val sharedModule = module {
         GoalIndexScreen(
             viewModel = koinViewModel(),
             navigator = get()
+        )
+    }
+    navigation<Screen.GoalIndexDetail> {
+        GoalDetailScreen(
+            viewModel = koinViewModel {
+                parametersOf(it.goalId)
+            },
         )
     }
     navigation<Screen.GoalAddForm> {

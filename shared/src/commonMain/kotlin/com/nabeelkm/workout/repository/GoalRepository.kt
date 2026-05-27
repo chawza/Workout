@@ -1,9 +1,9 @@
 package com.nabeelkm.workout.repository
 
+import com.nabeelkm.workout.dao.GoalWithParameter
 import com.nabeelkm.workout.database.AppDatabase
 import com.nabeelkm.workout.entity.Goal
 import com.nabeelkm.workout.entity.GoalStatus
-import kotlinx.coroutines.flow.Flow
 
 
 class GoalRepository(
@@ -24,6 +24,10 @@ class GoalRepository(
 
     suspend fun getById(id: Int): Goal? {
         return dao.getById(id)
+    }
+
+    suspend fun getByIdWithParameters(id: Int): GoalWithParameter? {
+        return dao.getByIdWithParameters(id)
     }
 
     suspend fun upsert(goal: Goal) {

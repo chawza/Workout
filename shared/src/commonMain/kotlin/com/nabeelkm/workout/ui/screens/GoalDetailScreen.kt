@@ -5,6 +5,7 @@ import androidx.compose.foundation.layout.Box
 import androidx.compose.foundation.layout.Column
 import androidx.compose.foundation.layout.PaddingValues
 import androidx.compose.foundation.layout.Row
+import androidx.compose.foundation.layout.fillMaxSize
 import androidx.compose.foundation.layout.fillMaxWidth
 import androidx.compose.foundation.layout.padding
 import androidx.compose.foundation.layout.size
@@ -12,6 +13,7 @@ import androidx.compose.foundation.shape.RoundedCornerShape
 import androidx.compose.material3.Button
 import androidx.compose.material3.ButtonDefaults
 import androidx.compose.material3.Icon
+import androidx.compose.material3.LoadingIndicator
 import androidx.compose.material3.MaterialTheme
 import androidx.compose.material3.MultiChoiceSegmentedButtonRow
 import androidx.compose.material3.Scaffold
@@ -26,16 +28,20 @@ import androidx.compose.ui.graphics.Color
 import androidx.compose.ui.text.style.TextAlign
 import androidx.compose.ui.tooling.preview.Preview
 import androidx.compose.ui.unit.dp
+import androidx.lifecycle.compose.collectAsStateWithLifecycle
 import com.nabeelkm.workout.entity.Goal
 import com.nabeelkm.workout.entity.GoalStatus
 import com.nabeelkm.workout.entity.Parameter
 import com.nabeelkm.workout.entity.ParameterType
 import com.nabeelkm.workout.entity.Workout
+import com.nabeelkm.workout.navigation.Navigator
 import com.nabeelkm.workout.theme.ThemeColor
 import com.nabeelkm.workout.ui.components.Card
 import com.nabeelkm.workout.ui.components.PrimaryButton
 import com.nabeelkm.workout.utils.formatDate
 import com.nabeelkm.workout.utils.formatDateTime
+import com.nabeelkm.workout.viewmodel.GoalDetailUIState
+import com.nabeelkm.workout.viewmodel.GoalDetailViewModel
 import org.jetbrains.compose.resources.painterResource
 import workout.shared.generated.resources.Res
 import workout.shared.generated.resources.workout_icon
@@ -44,7 +50,30 @@ import kotlin.time.Instant
 
 @Composable
 fun GoalDetailScreen(
+    viewModel: GoalDetailViewModel,
 ) {
+    val uiState = viewModel.uiState.collectAsStateWithLifecycle()
+
+    when (uiState.value) {
+        is GoalDetailUIState.Idle -> {
+            Box(
+                Modifier.fillMaxSize(),
+                contentAlignment = Alignment.Center
+            ) {
+                LoadingIndicator()
+            }
+        }
+        is GoalDetailUIState.Failed -> {
+            Box(contentAlignment = Alignment.Center) {
+                Text("Invalid State :(")
+            }
+        }
+        is GoalDetailUIState.Success -> {
+            GoalDetailContent(
+                goal = (uiState.value as GoalDetailUIState.Success).goal
+            )
+        }
+    }
 
 }
 

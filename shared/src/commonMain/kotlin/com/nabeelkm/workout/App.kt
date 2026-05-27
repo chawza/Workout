@@ -20,6 +20,7 @@ import org.koin.core.parameter.parametersOf
 @Serializable
 sealed class Screen {
     data object GoalIndex : Screen()
+    class GoalIndexDetail(val goalId: Int): Screen()
     data object GoalAddForm: Screen()
     class GoalEditForm(val goalId: Int): Screen()
     data object Home : Screen()
