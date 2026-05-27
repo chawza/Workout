@@ -59,6 +59,7 @@ import com.nabeelkm.workout.entity.ParameterType
 import com.nabeelkm.workout.navigation.Navigator
 import com.nabeelkm.workout.theme.Theme
 import com.nabeelkm.workout.theme.ThemeColor
+import com.nabeelkm.workout.ui.components.PrimaryButton
 import com.nabeelkm.workout.viewmodel.FormState
 import com.nabeelkm.workout.viewmodel.GoalFormViewModel
 import kotlinx.coroutines.flow.MutableStateFlow
@@ -406,14 +407,8 @@ fun GoalFormScreen(
                 ) {
                     Text("Cancel")
                 }
-                Button(
+                PrimaryButton(
                     modifier = Modifier.weight(1F),
-                    colors = ButtonDefaults.buttonColors(
-                        containerColor = ThemeColor.primary,
-                        contentColor = ThemeColor.white
-                    ),
-                    contentPadding = PaddingValues(18.dp, 10.dp),
-                    shape = RoundedCornerShape(10.dp),
                     onClick = {
                         if (existing == null) onAdd()
                         else onEdit()
