@@ -3,6 +3,7 @@ package com.nabeelkm.workout.ui.screens
 import androidx.compose.foundation.BorderStroke
 import androidx.compose.foundation.background
 import androidx.compose.foundation.border
+import androidx.compose.foundation.clickable
 import androidx.compose.foundation.interaction.MutableInteractionSource
 import androidx.compose.foundation.interaction.collectIsHoveredAsState
 import androidx.compose.foundation.interaction.collectIsPressedAsState
@@ -130,7 +131,14 @@ fun GoalIndexScreen(
                 )
             }
             items(items = activeGoals, key = { goal -> "active_${goal.id}" }) { goal ->
-                GoalCard(goal, onDelete = onDelete, onEdit = onEdit)
+                GoalCard(
+                    goal,
+                    onDelete = onDelete,
+                    onEdit = onEdit,
+                    navigateToDetail = {
+                        navigator.navigate(Screen.GoalIndexDetail(goal.id))
+                    }
+                )
             }
 
             item {
@@ -144,7 +152,14 @@ fun GoalIndexScreen(
                 )
             }
             items(items = newGoals, key = { goal -> "new_${goal.id}" }) { goal ->
-                GoalCard(goal, onDelete = onDelete, onEdit = onEdit)
+                GoalCard(
+                    goal,
+                    onDelete = onDelete,
+                    onEdit = onEdit,
+                    navigateToDetail = {
+                        navigator.navigate(Screen.GoalIndexDetail(goal.id))
+                    }
+                )
             }
         }
 
@@ -200,9 +215,12 @@ fun DangerTextButton(text: String, modifier: Modifier = Modifier, onClick: () ->
 }
 
 @Composable
-fun GoalCard(goal: Goal, onDelete: (Goal) -> Unit = {}, onEdit: (Goal) -> Unit = {}) {
+fun GoalCard(goal: Goal, onDelete: (Goal) -> Unit = {}, onEdit: (Goal) -> Unit = {}, navigateToDetail: (Goal) -> Unit = {}) {
     Card(
         modifier = Modifier
+            .clickable {
+                navigateToDetail(goal)
+            }
             .border(1.dp, ThemeColor.border, RoundedCornerShape(10.dp))
             .fillMaxWidth(),
         colors = CardDefaults.cardColors(

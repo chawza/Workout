@@ -17,6 +17,13 @@ enum class ParameterType(val value: Int) {
             INTEGER -> "Integer"
         }
     }
+
+    companion object {
+        fun fromValue(value: Int): ParameterType {
+            return ParameterType.entries.find { it.value == value }!!
+        }
+    }
+
 }
 
 @Entity(

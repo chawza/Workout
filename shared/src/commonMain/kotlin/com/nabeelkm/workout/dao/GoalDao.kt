@@ -4,10 +4,21 @@ import androidx.room.Dao
 import androidx.room.Insert
 import androidx.room.Query
 import androidx.room.Delete
+import androidx.room.Embedded
+import androidx.room.Relation
+import androidx.room.Transaction
 import androidx.room.Upsert
 import com.nabeelkm.workout.entity.Goal
+import com.nabeelkm.workout.entity.Parameter
 import kotlinx.coroutines.flow.Flow
 
+
+data class GoalWithParameter(
+    @Embedded val goal: Goal,
+    @Relation(parentColumn = "id", entityColumn = "goalId")
+    val parameters: List<Parameter>
+
+)
 @Dao
 interface GoalDao {
     @Insert
@@ -24,4 +35,8 @@ interface GoalDao {
 
     @Upsert
     suspend fun upsert(goal: Goal)
+
+    @Transaction
+    @Query("SELECT * FROM Goal WHERE id = :id")
+    fun getByIdWithParameters(id: Int): Flow<GoalWithParameter?>
 }
