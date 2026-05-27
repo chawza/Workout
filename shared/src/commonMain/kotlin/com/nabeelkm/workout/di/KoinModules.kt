@@ -1,5 +1,6 @@
 package com.nabeelkm.workout.di
 
+import androidx.compose.runtime.LaunchedEffect
 import androidx.compose.runtime.snapshots.SnapshotStateList
 import com.nabeelkm.workout.Screen
 import com.nabeelkm.workout.database.AppDatabase
@@ -42,10 +43,12 @@ val sharedModule = module {
         )
     }
     navigation<Screen.GoalIndexDetail> {
+        val viewModel = koinViewModel<GoalDetailViewModel>()
+        LaunchedEffect(it.goalId) {
+            viewModel.loadGoal(it.goalId)
+        }
         GoalDetailScreen(
-            viewModel = koinViewModel {
-                parametersOf(it.goalId)
-            },
+            viewModel = viewModel,
         )
     }
     navigation<Screen.GoalAddForm> {

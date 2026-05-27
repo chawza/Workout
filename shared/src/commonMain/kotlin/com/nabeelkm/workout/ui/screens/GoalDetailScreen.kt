@@ -197,7 +197,7 @@ fun GoalDetailHeader(
                     checked = goalStatus == GoalStatus.ACTIVE,
                     onCheckedChange = {
                         scope.launch {
-                            onSwitchState(GoalStatus.NEW)
+                            onSwitchState(GoalStatus.ACTIVE)
                         }
                     },
                     shape = RoundedCornerShape(6.dp)
@@ -208,7 +208,7 @@ fun GoalDetailHeader(
                     checked = goalStatus == GoalStatus.COMPLETED,
                     onCheckedChange = {
                         scope.launch {
-                            onSwitchState(GoalStatus.NEW)
+                            onSwitchState(GoalStatus.COMPLETED)
                         }
                     },
                     shape = RoundedCornerShape(6.dp)

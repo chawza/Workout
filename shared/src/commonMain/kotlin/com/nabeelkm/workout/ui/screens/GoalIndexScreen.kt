@@ -131,7 +131,14 @@ fun GoalIndexScreen(
                 )
             }
             items(items = activeGoals, key = { goal -> "active_${goal.id}" }) { goal ->
-                GoalCard(goal, onDelete = onDelete, onEdit = onEdit)
+                GoalCard(
+                    goal,
+                    onDelete = onDelete,
+                    onEdit = onEdit,
+                    navigateToDetail = {
+                        navigator.navigate(Screen.GoalIndexDetail(goal.id))
+                    }
+                )
             }
 
             item {
