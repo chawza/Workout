@@ -38,5 +38,5 @@ interface GoalDao {
 
     @Transaction
     @Query("SELECT * FROM Goal WHERE id = :id")
-    suspend fun getByIdWithParameters(id: Int): GoalWithParameter?
+    fun getByIdWithParameters(id: Int): Flow<GoalWithParameter?>
 }

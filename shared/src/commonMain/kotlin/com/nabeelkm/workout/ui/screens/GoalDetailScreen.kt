@@ -22,6 +22,7 @@ import androidx.compose.material3.Text
 import androidx.compose.material3.TopAppBar
 import androidx.compose.material3.TopAppBarDefaults
 import androidx.compose.runtime.Composable
+import androidx.compose.runtime.rememberCoroutineScope
 import androidx.compose.ui.Alignment
 import androidx.compose.ui.Modifier
 import androidx.compose.ui.graphics.Color
@@ -34,7 +35,6 @@ import com.nabeelkm.workout.entity.GoalStatus
 import com.nabeelkm.workout.entity.Parameter
 import com.nabeelkm.workout.entity.ParameterType
 import com.nabeelkm.workout.entity.Workout
-import com.nabeelkm.workout.navigation.Navigator
 import com.nabeelkm.workout.theme.ThemeColor
 import com.nabeelkm.workout.ui.components.Card
 import com.nabeelkm.workout.ui.components.PrimaryButton
@@ -42,6 +42,7 @@ import com.nabeelkm.workout.utils.formatDate
 import com.nabeelkm.workout.utils.formatDateTime
 import com.nabeelkm.workout.viewmodel.GoalDetailUIState
 import com.nabeelkm.workout.viewmodel.GoalDetailViewModel
+import kotlinx.coroutines.launch
 import org.jetbrains.compose.resources.painterResource
 import workout.shared.generated.resources.Res
 import workout.shared.generated.resources.workout_icon
@@ -54,7 +55,7 @@ fun GoalDetailScreen(
 ) {
     val uiState = viewModel.uiState.collectAsStateWithLifecycle()
 
-    when (uiState.value) {
+    when (val state = uiState.value) {
         is GoalDetailUIState.Idle -> {
             Box(
                 Modifier.fillMaxSize(),
@@ -70,7 +71,9 @@ fun GoalDetailScreen(
         }
         is GoalDetailUIState.Success -> {
             GoalDetailContent(
-                goal = (uiState.value as GoalDetailUIState.Success).goal
+                goal = state.goalWithParameter.goal,
+                onSwitchState = viewModel::switchState,
+                navigateToEditScreen = viewModel::navigateToEditScreen,
             )
         }
     }
@@ -83,6 +86,8 @@ fun GoalDetailContent(
     parameters: List<Parameter> = listOf(),
     workouts: List<Workout> = listOf(),
     onAddWorkout: () -> Unit = {},
+    onSwitchState: suspend (GoalStatus) -> Unit = {},
+    navigateToEditScreen: () -> Unit = {}
 ) {
     Scaffold(
         containerColor = ThemeColor.background,
@@ -98,7 +103,7 @@ fun GoalDetailContent(
                             contentColor = ThemeColor.textBlack
                         ),
                         onClick = {
-
+                            navigateToEditScreen()
                         },
                         shape = RoundedCornerShape(10.dp),
                         contentPadding = PaddingValues(18.dp, 10.dp)
@@ -114,7 +119,7 @@ fun GoalDetailContent(
             modifier = Modifier.padding(innerPadding).padding(16.dp),
             verticalArrangement = Arrangement.spacedBy(32.dp)
         ) {
-            GoalDetailHeader(goal)
+            GoalDetailHeader(goal, onSwitchState)
 
             Column(
                 modifier = Modifier.fillMaxWidth(),
@@ -160,7 +165,13 @@ fun GoalDetailContent(
 }
 
 @Composable
-fun GoalDetailHeader(goal: Goal) {
+fun GoalDetailHeader(
+    goal: Goal,
+    onSwitchState: suspend (GoalStatus) -> Unit
+) {
+    val scope = rememberCoroutineScope()
+    val goalStatus = GoalStatus.fromValue(goal.status)
+
     Card (
         modifier = Modifier.fillMaxWidth(),
     ) {
@@ -172,27 +183,33 @@ fun GoalDetailHeader(goal: Goal) {
                 modifier = Modifier.fillMaxWidth()
             ) {
                 SegmentedButton(
-                    checked = goal.status == GoalStatus.NEW.value,
+                    checked = goalStatus == GoalStatus.NEW,
                     onCheckedChange = {
-
+                        scope.launch {
+                            onSwitchState(GoalStatus.NEW)
+                        }
                     },
                     shape = RoundedCornerShape(6.dp)
                 ) {
                     Text("New")
                 }
                 SegmentedButton(
-                    checked = goal.status == GoalStatus.ACTIVE.value,
+                    checked = goalStatus == GoalStatus.ACTIVE,
                     onCheckedChange = {
-
+                        scope.launch {
+                            onSwitchState(GoalStatus.NEW)
+                        }
                     },
                     shape = RoundedCornerShape(6.dp)
                 ) {
                     Text("Active")
                 }
                 SegmentedButton(
-                    checked = goal.status == GoalStatus.COMPLETED.value,
+                    checked = goalStatus == GoalStatus.COMPLETED,
                     onCheckedChange = {
-
+                        scope.launch {
+                            onSwitchState(GoalStatus.NEW)
+                        }
                     },
                     shape = RoundedCornerShape(6.dp)
                 ) {
