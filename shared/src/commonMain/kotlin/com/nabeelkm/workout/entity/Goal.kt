@@ -24,7 +24,8 @@ data class Goal(
     val status: Int,
     val createdAt: Long,
     val completedAt: Long?,
-    val startAt: Long?
+    val startAt: Long?,
+    val notes: String = "",
 ) {
     fun getStatus(): GoalStatus {
         return GoalStatus.fromValue(status)

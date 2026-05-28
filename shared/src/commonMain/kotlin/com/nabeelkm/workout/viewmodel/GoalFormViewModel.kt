@@ -11,6 +11,7 @@ import com.nabeelkm.workout.repository.GoalRepository
 import kotlinx.coroutines.Dispatchers
 import kotlinx.coroutines.IO
 import kotlinx.coroutines.flow.MutableStateFlow
+import kotlinx.coroutines.flow.StateFlow
 import kotlinx.coroutines.flow.asStateFlow
 import kotlinx.coroutines.flow.update
 import kotlinx.coroutines.launch
@@ -37,19 +38,20 @@ data class FormState(
 class GoalFormViewModel(
     val goalRepository: GoalRepository,
     val navigator: Navigator,
-    val goalId: Int? = null,
 ): ViewModel() {
+    private val _goalId = MutableStateFlow<Int?>(null)
     private val _formState = MutableStateFlow(FormState())
     val formState = _formState.asStateFlow()
     private val _existingGoal = MutableStateFlow<Goal?>(null)
     val existingGoal = _existingGoal.asStateFlow()
 
-    init {
+    fun loadGoal(id: Int) {
+        _goalId.value = id
         loadExistingGoal()
     }
 
-    fun loadExistingGoal() {
-        val id = goalId ?: return
+    private fun loadExistingGoal() {
+        val id = _goalId.value ?: return
         viewModelScope.launch {
             val goal = withContext(Dispatchers.IO) {
                 goalRepository.getById(id)
@@ -76,11 +78,12 @@ class GoalFormViewModel(
 
         val newGoal = Goal(
             0,
-            formState.goalName,
-            GoalStatus.NEW.value,
-            Clock.System.now().toEpochMilliseconds(),
-            formState.completedAt,
-            formState.startAt,
+            name = formState.goalName,
+            status = GoalStatus.NEW.value,
+            createdAt = Clock.System.now().toEpochMilliseconds(),
+            completedAt =  formState.completedAt,
+            startAt = formState.startAt,
+            notes = formState.notes
         )
 
         withContext(Dispatchers.IO) {
@@ -98,7 +101,8 @@ class GoalFormViewModel(
             id = goal.id,
             name = state.goalName,
             startAt = state.startAt,
-            completedAt = state.completedAt
+            completedAt = state.completedAt,
+            notes = state.notes,
         )
 
         withContext(Dispatchers.IO) {

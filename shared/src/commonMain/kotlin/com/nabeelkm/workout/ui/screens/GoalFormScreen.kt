@@ -42,7 +42,6 @@ import androidx.compose.material3.TopAppBarDefaults
 import androidx.compose.material3.rememberDatePickerState
 import androidx.compose.material3.rememberTimePickerState
 import androidx.compose.runtime.Composable
-import androidx.compose.runtime.LaunchedEffect
 import androidx.compose.runtime.collectAsState
 import androidx.compose.runtime.getValue
 import androidx.compose.runtime.mutableStateOf
@@ -75,9 +74,6 @@ fun GoalFormScreen(
     viewModel: GoalFormViewModel = koinViewModel(),
     navigator: Navigator,
 ) {
-    LaunchedEffect(viewModel.goalId) {
-        viewModel.loadExistingGoal()
-    }
     val existingGoal by viewModel.existingGoal.collectAsState()
 
     GoalFormScreen(

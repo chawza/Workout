@@ -18,7 +18,6 @@ import org.koin.core.annotation.KoinExperimentalAPI
 import org.koin.core.module.Module
 import org.koin.core.module.dsl.singleOf
 import org.koin.core.module.dsl.viewModelOf
-import org.koin.core.parameter.parametersOf
 import org.koin.dsl.module
 import org.koin.dsl.navigation3.navigation
 
@@ -58,10 +57,12 @@ val sharedModule = module {
         )
     }
     navigation<Screen.GoalEditForm> {
+        val vm = koinViewModel<GoalFormViewModel>()
+        LaunchedEffect(it.goalId) {
+            vm.loadGoal(it.goalId)
+        }
         GoalFormScreen(
-            viewModel = koinViewModel {
-                parametersOf(it.goalId)
-            },
+            viewModel = vm,
             navigator = get(),
         )
     }
