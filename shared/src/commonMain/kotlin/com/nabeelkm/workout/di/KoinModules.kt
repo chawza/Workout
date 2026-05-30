@@ -10,6 +10,7 @@ import com.nabeelkm.workout.repository.GoalRepository
 import com.nabeelkm.workout.ui.screens.GoalDetailScreen
 import com.nabeelkm.workout.ui.screens.GoalFormScreen
 import com.nabeelkm.workout.ui.screens.GoalIndexScreen
+import com.nabeelkm.workout.ui.screens.SettingsScreen
 import com.nabeelkm.workout.viewmodel.GoalDetailViewModel
 import com.nabeelkm.workout.viewmodel.GoalFormViewModel
 import com.nabeelkm.workout.viewmodel.GoalIndexViewModel
@@ -65,6 +66,9 @@ val sharedModule = module {
             viewModel = vm,
             navigator = get(),
         )
+    }
+    navigation<Screen.Settings> {
+        SettingsScreen()
     }
     navigation<Screen.Home> {
 

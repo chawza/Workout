@@ -24,6 +24,7 @@ sealed class Screen {
     data object GoalAddForm: Screen()
     class GoalEditForm(val goalId: Int): Screen()
     data object Home : Screen()
+    data object Settings: Screen()
 }
 
 @OptIn(KoinExperimentalAPI::class)
