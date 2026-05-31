@@ -1,17 +1,12 @@
 package com.nabeelkm.workout.ui.screens
 
 import androidx.compose.foundation.BorderStroke
-import androidx.compose.foundation.checkScrollableContainerConstraints
 import androidx.compose.foundation.layout.Arrangement
-import androidx.compose.foundation.layout.Box
 import androidx.compose.foundation.layout.Column
 import androidx.compose.foundation.layout.PaddingValues
 import androidx.compose.foundation.layout.Row
-import androidx.compose.foundation.layout.Spacer
 import androidx.compose.foundation.layout.fillMaxWidth
-import androidx.compose.foundation.layout.height
 import androidx.compose.foundation.layout.padding
-import androidx.compose.foundation.layout.widthIn
 import androidx.compose.foundation.shape.RoundedCornerShape
 import androidx.compose.material3.Button
 import androidx.compose.material3.ButtonDefaults
@@ -34,14 +29,10 @@ import androidx.compose.ui.Modifier
 import androidx.compose.ui.graphics.Color
 import androidx.compose.ui.tooling.preview.Preview
 import androidx.compose.ui.unit.dp
-import androidx.compose.ui.unit.max
 import androidx.compose.ui.unit.sp
-import androidx.room.util.TableInfo
-import com.nabeelkm.workout.Screen
 import com.nabeelkm.workout.theme.Theme
 import com.nabeelkm.workout.theme.ThemeColor
 import com.nabeelkm.workout.ui.components.Card
-import kotlin.math.sin
 
 @Composable
 fun SettingsScreen() {
@@ -246,6 +237,6 @@ fun ConfigRow(
 @Composable
 fun SettingsScreenPreview() {
     Theme {
-        SettingsScreenContent()
+        SettingsScreen()
     }
 }

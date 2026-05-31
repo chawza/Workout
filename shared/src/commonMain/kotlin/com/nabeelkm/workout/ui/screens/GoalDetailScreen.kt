@@ -54,6 +54,7 @@ fun GoalDetailScreen(
     viewModel: GoalDetailViewModel,
 ) {
     val uiState = viewModel.uiState.collectAsStateWithLifecycle()
+    val scope = rememberCoroutineScope()
 
     when (val state = uiState.value) {
         is GoalDetailUIState.Idle -> {
@@ -72,7 +73,14 @@ fun GoalDetailScreen(
         is GoalDetailUIState.Success -> {
             GoalDetailContent(
                 goal = state.goalWithParameter.goal,
-                onSwitchState = viewModel::switchState,
+                parameters = state.goalWithParameter.parameters,
+                workouts = emptyList(),
+                onAddWorkout = { /* TODO */ },
+                onSwitchState = { status ->
+                    scope.launch {
+                        viewModel.switchState(status)
+                    }
+                },
                 navigateToEditScreen = viewModel::navigateToEditScreen,
             )
         }
@@ -81,12 +89,12 @@ fun GoalDetailScreen(
 }
 
 @Composable
-fun GoalDetailContent(
+private fun GoalDetailContent(
     goal: Goal,
     parameters: List<Parameter> = listOf(),
     workouts: List<Workout> = listOf(),
     onAddWorkout: () -> Unit = {},
-    onSwitchState: suspend (GoalStatus) -> Unit = {},
+    onSwitchState: (GoalStatus) -> Unit = {},
     navigateToEditScreen: () -> Unit = {}
 ) {
     Scaffold(
@@ -167,9 +175,8 @@ fun GoalDetailContent(
 @Composable
 fun GoalDetailHeader(
     goal: Goal,
-    onSwitchState: suspend (GoalStatus) -> Unit
+    onSwitchState: (GoalStatus) -> Unit
 ) {
-    val scope = rememberCoroutineScope()
     val goalStatus = GoalStatus.fromValue(goal.status)
 
     Card (
@@ -185,9 +192,7 @@ fun GoalDetailHeader(
                 SegmentedButton(
                     checked = goalStatus == GoalStatus.NEW,
                     onCheckedChange = {
-                        scope.launch {
-                            onSwitchState(GoalStatus.NEW)
-                        }
+                        onSwitchState(GoalStatus.NEW)
                     },
                     shape = RoundedCornerShape(6.dp)
                 ) {
@@ -196,9 +201,7 @@ fun GoalDetailHeader(
                 SegmentedButton(
                     checked = goalStatus == GoalStatus.ACTIVE,
                     onCheckedChange = {
-                        scope.launch {
-                            onSwitchState(GoalStatus.ACTIVE)
-                        }
+                        onSwitchState(GoalStatus.ACTIVE)
                     },
                     shape = RoundedCornerShape(6.dp)
                 ) {
@@ -207,9 +210,7 @@ fun GoalDetailHeader(
                 SegmentedButton(
                     checked = goalStatus == GoalStatus.COMPLETED,
                     onCheckedChange = {
-                        scope.launch {
-                            onSwitchState(GoalStatus.COMPLETED)
-                        }
+                        onSwitchState(GoalStatus.COMPLETED)
                     },
                     shape = RoundedCornerShape(6.dp)
                 ) {
@@ -333,7 +334,7 @@ fun WorkoutDetailCard(modifier: Modifier = Modifier, workout: Workout) {
 
 @Preview
 @Composable
-fun GoalDetailContentPreview() {
+fun GoalDetailPreview() {
     GoalDetailContent(
         goal = Goal(
             1,
