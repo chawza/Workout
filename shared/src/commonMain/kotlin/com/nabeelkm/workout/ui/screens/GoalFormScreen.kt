@@ -53,6 +53,7 @@ import androidx.compose.ui.graphics.Color
 import androidx.compose.ui.text.font.FontWeight
 import androidx.compose.ui.tooling.preview.Preview
 import androidx.compose.ui.unit.dp
+import androidx.lifecycle.compose.collectAsStateWithLifecycle
 import com.nabeelkm.workout.entity.Goal
 import com.nabeelkm.workout.entity.Parameter
 import com.nabeelkm.workout.entity.ParameterType
@@ -74,8 +75,8 @@ fun GoalFormScreen(
     viewModel: GoalFormViewModel = koinViewModel(),
     navigator: AppNavigator,
 ) {
-    val existingGoal by viewModel.existingGoal.collectAsState()
-    val formState by viewModel.formState.collectAsState()
+    val existingGoal by viewModel.existingGoal.collectAsStateWithLifecycle()
+    val formState by viewModel.formState.collectAsStateWithLifecycle()
 
     LaunchedEffect(goalId) {
         if (goalId != null) {

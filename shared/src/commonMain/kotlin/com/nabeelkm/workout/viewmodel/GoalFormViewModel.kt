@@ -48,7 +48,7 @@ class GoalFormViewModel(
 
     fun resetStates() {
         _goalId.update { null }
-
+        _existingGoal.update { null }
         _formState.update {
             FormState()
         }
