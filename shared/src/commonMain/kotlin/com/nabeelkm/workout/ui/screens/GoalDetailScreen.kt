@@ -112,7 +112,7 @@ private fun GoalDetailContent(
     navigateToEditScreen: () -> Unit = {}
 ) {
     Scaffold(
-        containerColor = ThemeColor.background,
+        containerColor = MaterialTheme.colorScheme.background,
         topBar = {
             TopAppBar(
                 title = {
@@ -122,7 +122,7 @@ private fun GoalDetailContent(
                     Button(
                         colors = ButtonDefaults.buttonColors().copy(
                             containerColor = Color.Transparent,
-                            contentColor = ThemeColor.textBlack
+                            contentColor = MaterialTheme.colorScheme.onSurface
                         ),
                         onClick = {
                             navigateToEditScreen()
@@ -133,7 +133,7 @@ private fun GoalDetailContent(
                         Text("Edit")
                     }
                 },
-                colors = TopAppBarDefaults.topAppBarColors(containerColor = ThemeColor.background)
+                colors = TopAppBarDefaults.topAppBarColors(containerColor = MaterialTheme.colorScheme.background)
             )
         }
     ) { innerPadding ->
@@ -149,8 +149,8 @@ private fun GoalDetailContent(
             ) {
                 Text(
                     "Tracked Parameters".uppercase(),
-                    style = MaterialTheme.typography.bodyMedium.copy(
-                        color = ThemeColor.muted,
+                    style = MaterialTheme.typography.labelLarge.copy(
+                        color = MaterialTheme.colorScheme.onSurfaceVariant,
                     )
                 )
                 GoalParameterList(parameters)
@@ -169,8 +169,8 @@ private fun GoalDetailContent(
             ) {
                 Text(
                     "Recent Workout".uppercase(),
-                    style = MaterialTheme.typography.bodyMedium.copy(
-                        color = ThemeColor.muted,
+                    style = MaterialTheme.typography.labelLarge.copy(
+                        color = MaterialTheme.colorScheme.onSurfaceVariant,
                     )
                 )
 
@@ -204,8 +204,8 @@ fun GoalDetailHeader(
                 modifier = Modifier.fillMaxWidth()
             ) {
                 val buttonColors = SegmentedButtonDefaults.colors(
-                    activeContainerColor = ThemeColor.primary,
-                    activeContentColor = ThemeColor.background,
+                    activeContainerColor = MaterialTheme.colorScheme.primary,
+                    activeContentColor = MaterialTheme.colorScheme.background,
                 )
                 SegmentedButton(
                     checked = goalStatus == GoalStatus.NEW,
@@ -214,7 +214,7 @@ fun GoalDetailHeader(
                     },
                     shape = RoundedCornerShape(topStart = 6.dp, topEnd = 0.dp, bottomStart = 6.dp, bottomEnd = 0.dp),
                     colors = buttonColors,
-                    border = BorderStroke(1.dp, ThemeColor.border),
+                    border = BorderStroke(1.dp, MaterialTheme.colorScheme.outline),
                     icon = {}
                 ) {
                     Text("New")
@@ -226,7 +226,7 @@ fun GoalDetailHeader(
                     },
                     shape = RoundedCornerShape(0.dp),
                     colors = buttonColors,
-                    border = BorderStroke(1.dp, ThemeColor.border),
+                    border = BorderStroke(1.dp, MaterialTheme.colorScheme.outline),
                     icon = {}
                 ) {
                     Text("Active")
@@ -238,7 +238,7 @@ fun GoalDetailHeader(
                     },
                     shape = RoundedCornerShape(topStart = 0.dp, topEnd = 6.dp, bottomStart = 0.dp, bottomEnd = 6.dp),
                     colors = buttonColors,
-                    border = BorderStroke(1.dp, ThemeColor.border),
+                    border = BorderStroke(1.dp, MaterialTheme.colorScheme.outline),
                     icon = {}
                 ) {
                     Text("Completed")
@@ -266,7 +266,7 @@ fun GoalDetailHeader(
                 Text(
                     goal.startAt?.let { formatDateTime(it) } ?: "-"
                 )
-                Text("-", style = MaterialTheme.typography.bodySmall.copy(color = ThemeColor.muted) )
+                Text("-", style = MaterialTheme.typography.bodySmall.copy(color = MaterialTheme.colorScheme.onSurfaceVariant) )
                 Text(
                     goal.completedAt?.let { formatDateTime(it) } ?: "-"
                 )
@@ -274,7 +274,7 @@ fun GoalDetailHeader(
 
             Text(
                 "Created ${formatDate(goal.createdAt)}",
-                style = MaterialTheme.typography.bodySmall.copy(ThemeColor.muted),
+                style = MaterialTheme.typography.bodySmall.copy(color = MaterialTheme.colorScheme.onSurfaceVariant),
                 modifier = Modifier.fillMaxWidth(),
                 textAlign = TextAlign.Center
             )
@@ -336,7 +336,7 @@ fun WorkoutDetailCard(modifier: Modifier = Modifier, workout: Workout) {
                         modifier = Modifier.size(20.dp),
                         painter = painterResource(Res.drawable.workout_icon),
                         contentDescription = "Workout Icon",
-                        tint = ThemeColor.muted
+                        tint = MaterialTheme.colorScheme.onSurfaceVariant
                     )
                 }
             }

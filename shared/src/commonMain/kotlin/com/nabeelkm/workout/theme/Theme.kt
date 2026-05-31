@@ -105,11 +105,21 @@ object ThemeColor {
 fun Theme(content: @Composable () -> Unit) {
     MaterialTheme(
         colorScheme = MaterialTheme.colorScheme.copy(
+            primary = ThemeColor.primary,
+            onPrimary = ThemeColor.white,
             background = ThemeColor.background,
+            onBackground = ThemeColor.textBlack,
             surface = ThemeColor.onBackground,
+            onSurface = ThemeColor.textBlack,
             surfaceContainer = ThemeColor.onBackground,
             surfaceContainerHigh = ThemeColor.onBackground,
             surfaceContainerHighest = ThemeColor.onBackground,
+            error = ThemeColor.danger,
+            onError = ThemeColor.white,
+            outline = ThemeColor.border,
+            outlineVariant = ThemeColor.borderSoft,
+            surfaceVariant = ThemeColor.borderSoft,
+            onSurfaceVariant = ThemeColor.textGrey,
         ),
         shapes = MaterialTheme.shapes.copy(
             medium = ShapeDefaults.Medium.copy(CornerSize(10.dp))

@@ -56,7 +56,7 @@ private fun SettingsScreenContent() {
                         )
                     }
                 },
-                colors = TopAppBarDefaults.topAppBarColors(containerColor = ThemeColor.background)
+                colors = TopAppBarDefaults.topAppBarColors(containerColor = MaterialTheme.colorScheme.background)
             )
         },
     ) { innerPadding ->
@@ -77,14 +77,14 @@ private fun SettingsScreenContent() {
                             checked = checkState.value,
                             onCheckedChange = { checkState.value = !checkState.value },
                             colors = SwitchDefaults.colors(
-                                uncheckedTrackColor = ThemeColor.border,
-                                uncheckedBorderColor = ThemeColor.border,
-                                uncheckedThumbColor = ThemeColor.white,
-                                uncheckedIconColor = ThemeColor.white,
-                                checkedTrackColor = ThemeColor.primary,
-                                checkedBorderColor = ThemeColor.primary,
-                                checkedThumbColor = ThemeColor.white,
-                                checkedIconColor = ThemeColor.white,
+                                uncheckedTrackColor = MaterialTheme.colorScheme.outline,
+                                uncheckedBorderColor = MaterialTheme.colorScheme.outline,
+                                uncheckedThumbColor = MaterialTheme.colorScheme.surface,
+                                uncheckedIconColor = MaterialTheme.colorScheme.surface,
+                                checkedTrackColor = MaterialTheme.colorScheme.primary,
+                                checkedBorderColor = MaterialTheme.colorScheme.primary,
+                                checkedThumbColor = MaterialTheme.colorScheme.surface,
+                                checkedIconColor = MaterialTheme.colorScheme.surface,
                             ),
                         )
                     }
@@ -105,7 +105,7 @@ private fun SettingsScreenContent() {
                                 shape = RoundedCornerShape(topStart = 8.dp, topEnd = 0.dp, bottomEnd = 0.dp, bottomStart = 8.dp),
                                 label = { Text("List") },
                                 colors = SegmentedButtonDefaults.colors(
-                                    activeContainerColor = ThemeColor.background
+                                    activeContainerColor = MaterialTheme.colorScheme.background
                                 ),
                                 icon = {},
                                 contentPadding = PaddingValues(0.dp)
@@ -116,7 +116,7 @@ private fun SettingsScreenContent() {
                                 shape = RoundedCornerShape(topStart = 0.dp, topEnd = 8.dp, bottomEnd = 8.dp, bottomStart = 0.dp),
                                 label = { Text("Calendar") },
                                 colors = SegmentedButtonDefaults.colors(
-                                    activeContainerColor = ThemeColor.background
+                                    activeContainerColor = MaterialTheme.colorScheme.background
                                 ),
                                 icon = {},
                                 contentPadding = PaddingValues(0.dp)
@@ -137,17 +137,17 @@ private fun SettingsScreenContent() {
                             onClick = {},
                             shape = RoundedCornerShape(10.dp),
                             colors = ButtonDefaults.buttonColors(
-                                containerColor = ThemeColor.onBackground,
-                                contentColor = ThemeColor.textBlack,
+                                containerColor = MaterialTheme.colorScheme.surface,
+                                contentColor = MaterialTheme.colorScheme.onSurface,
                             ),
-                            border = BorderStroke(width = 1.dp, color = ThemeColor.border)
+                            border = BorderStroke(width = 1.dp, color = MaterialTheme.colorScheme.outline)
                         ) {
                             Text("Export")
                         }
                     }
                 )
 
-                HorizontalDivider(thickness = 1.dp, color = ThemeColor.border, modifier = Modifier.padding(horizontal = 16.dp))
+                HorizontalDivider(thickness = 1.dp, color = MaterialTheme.colorScheme.outline, modifier = Modifier.padding(horizontal = 16.dp))
 
                 ConfigRow(
                     modifier = Modifier.fillMaxWidth(),
@@ -158,8 +158,8 @@ private fun SettingsScreenContent() {
                             onClick = {},
                             shape = RoundedCornerShape(10.dp),
                             colors = ButtonDefaults.buttonColors(
-                                containerColor = ThemeColor.danger,
-                                contentColor = ThemeColor.onBackground,
+                                containerColor = MaterialTheme.colorScheme.error,
+                                contentColor = MaterialTheme.colorScheme.surface,
                             ),
                             border = null
                         ) {
@@ -176,13 +176,13 @@ private fun SettingsScreenContent() {
                 ) {
                     Text(
                         text = "Workout Tracker v0.1.0",
-                        color = ThemeColor.textGrey,
-                        fontSize = 14.sp
+                        style = MaterialTheme.typography.bodySmall,
+                        color = MaterialTheme.colorScheme.onSurfaceVariant
                     )
                     Text(
                         text = "KMP Project",
-                        color = ThemeColor.textGrey,
-                        fontSize = 14.sp
+                        style = MaterialTheme.typography.bodySmall,
+                        color = MaterialTheme.colorScheme.onSurfaceVariant
                     )
                 }
             }
@@ -196,7 +196,7 @@ fun SectionHeader(title: String) {
     Text(
         title,
         style = MaterialTheme.typography.titleSmall,
-        color = ThemeColor.muted,
+        color = MaterialTheme.colorScheme.onSurfaceVariant,
         modifier = Modifier.padding(horizontal = 16.dp)
     )
 }
@@ -219,14 +219,12 @@ fun ConfigRow(
         ) {
             Text(
                 text = title,
-                style = MaterialTheme.typography.bodyMedium,
-                fontSize = 16.sp
+                style = MaterialTheme.typography.bodyMedium
             )
             Text(
                 text = description,
                 style = MaterialTheme.typography.bodySmall,
-                fontSize = 14.sp,
-                color = ThemeColor.textGrey
+                color = MaterialTheme.colorScheme.onSurfaceVariant
             )
         }
         actions()

@@ -137,7 +137,7 @@ private fun GoalFormContent(
                         Button(
                             colors = ButtonDefaults.buttonColors().copy(
                                 containerColor = Color.Transparent,
-                                contentColor = ThemeColor.primary
+                                contentColor = MaterialTheme.colorScheme.primary
                             ),
                             onClick = onCancel,
                             shape = RoundedCornerShape(10.dp),
@@ -147,7 +147,7 @@ private fun GoalFormContent(
                         }
                     }
                 },
-                colors = TopAppBarDefaults.topAppBarColors(containerColor = ThemeColor.background)
+                colors = TopAppBarDefaults.topAppBarColors(containerColor = MaterialTheme.colorScheme.background)
             )
         }
     ) { innerPadding ->
@@ -175,8 +175,8 @@ private fun GoalFormContent(
                     value = formState.goalName,
                     onValueChange = onNameChange,
                     colors = OutlinedTextFieldDefaults.colors(
-                        focusedBorderColor = ThemeColor.primary,
-                        unfocusedBorderColor = ThemeColor.border
+                        focusedBorderColor = MaterialTheme.colorScheme.primary,
+                        unfocusedBorderColor = MaterialTheme.colorScheme.outline
                     ),
                     placeholder = {
                         Text("e.g. Run a half marathon")
@@ -188,9 +188,9 @@ private fun GoalFormContent(
             Card(
                 modifier = Modifier
                     .fillMaxWidth()
-                    .border(1.dp, ThemeColor.border, RoundedCornerShape(10.dp)),
+                    .border(1.dp, MaterialTheme.colorScheme.outline, RoundedCornerShape(10.dp)),
                 colors = CardDefaults.cardColors(
-                    containerColor = ThemeColor.onBackground,
+                    containerColor = MaterialTheme.colorScheme.surface,
                 )
             ) {
                 Column(
@@ -198,7 +198,7 @@ private fun GoalFormContent(
                 ) {
                     Text(
                         "Parameters",
-                        style = MaterialTheme.typography.bodySmall.copy(fontWeight = FontWeight.Bold)
+                        style = MaterialTheme.typography.labelLarge
                     )
 
                     if (formState.parameters.isNotEmpty()) {
@@ -207,7 +207,7 @@ private fun GoalFormContent(
                         Text(
                             "No parameters yet. Add one to track metrics for this goal.",
                             modifier = Modifier.padding(vertical = 12.dp),
-                            style = MaterialTheme.typography.bodySmall.copy(ThemeColor.textGrey)
+                            style = MaterialTheme.typography.bodySmall.copy(color = MaterialTheme.colorScheme.onSurfaceVariant)
                         )
                     }
 
@@ -217,7 +217,7 @@ private fun GoalFormContent(
                         onClick = { },
                         contentPadding = PaddingValues(8.dp),
                         shape = RoundedCornerShape(10.dp),
-                        border = BorderStroke(1.dp, ThemeColor.border)
+                        border = BorderStroke(1.dp, MaterialTheme.colorScheme.outline)
                     ) {
                         Text("+ Add Parameter")
                     }
@@ -245,7 +245,7 @@ private fun GoalFormContent(
                         readOnly = true,
                         enabled = false,
                         colors = OutlinedTextFieldDefaults.colors(
-                            disabledBorderColor = ThemeColor.border,
+                            disabledBorderColor = MaterialTheme.colorScheme.outline,
                             disabledTextColor = MaterialTheme.colorScheme.onSurface,
                             disabledPlaceholderColor = MaterialTheme.colorScheme.onSurfaceVariant
                         ),
@@ -277,7 +277,7 @@ private fun GoalFormContent(
                         readOnly = true,
                         enabled = false,
                         colors = OutlinedTextFieldDefaults.colors(
-                            disabledBorderColor = ThemeColor.border,
+                            disabledBorderColor = MaterialTheme.colorScheme.outline,
                             disabledTextColor = MaterialTheme.colorScheme.onSurface,
                             disabledPlaceholderColor = MaterialTheme.colorScheme.onSurfaceVariant
                         ),
@@ -302,8 +302,8 @@ private fun GoalFormContent(
                     value = formState.notes,
                     onValueChange = onNotesChange,
                     colors = OutlinedTextFieldDefaults.colors(
-                        focusedBorderColor = ThemeColor.primary,
-                        unfocusedBorderColor = ThemeColor.border
+                        focusedBorderColor = MaterialTheme.colorScheme.primary,
+                        unfocusedBorderColor = MaterialTheme.colorScheme.outline
                     ),
                     placeholder = {
                         Text("Why this goal? What's the plan?")
@@ -408,10 +408,10 @@ private fun GoalFormContent(
                     shape = RoundedCornerShape(10.dp),
                     contentPadding = PaddingValues(18.dp, 10.dp),
                     colors = ButtonDefaults.buttonColors(
-                        containerColor = ThemeColor.white,
-                        contentColor = ThemeColor.textBlack
+                        containerColor = MaterialTheme.colorScheme.surface,
+                        contentColor = MaterialTheme.colorScheme.onSurface
                     ),
-                    border = BorderStroke(1.dp, ThemeColor.border),
+                    border = BorderStroke(1.dp, MaterialTheme.colorScheme.outline),
                     onClick = onCancel,
                 ) {
                     Text("Cancel")
@@ -458,7 +458,7 @@ fun DatePickerModal(
             }
         },
         colors = DatePickerDefaults.colors(
-            containerColor = ThemeColor.onBackground
+            containerColor = MaterialTheme.colorScheme.surface
         )
     ) {
         DatePicker(state = datePickerState)
@@ -493,7 +493,7 @@ fun TimePickerModal(
                 Text("Cancel")
             }
         },
-        containerColor = ThemeColor.onBackground,
+        containerColor = MaterialTheme.colorScheme.surface,
         text = {
             TimePicker(state = timePickerState)
         }
@@ -518,9 +518,9 @@ fun ParameterLists(modifier: Modifier = Modifier, parameters: List<Parameter>) {
                         value = parameters.name,
                         onValueChange = {},
                         colors = OutlinedTextFieldDefaults.colors(
-                            focusedBorderColor = ThemeColor.primary,
-                            unfocusedBorderColor = ThemeColor.border,
-                            unfocusedContainerColor = ThemeColor.background
+                            focusedBorderColor = MaterialTheme.colorScheme.primary,
+                            unfocusedBorderColor = MaterialTheme.colorScheme.outline,
+                            unfocusedContainerColor = MaterialTheme.colorScheme.background
                         ),
                     )
                 }
@@ -536,9 +536,9 @@ fun ParameterLists(modifier: Modifier = Modifier, parameters: List<Parameter>) {
                         value = parameters.name,
                         onValueChange = {},
                         colors = OutlinedTextFieldDefaults.colors(
-                            focusedBorderColor = ThemeColor.primary,
-                            unfocusedBorderColor = ThemeColor.border,
-                            unfocusedContainerColor = ThemeColor.background
+                            focusedBorderColor = MaterialTheme.colorScheme.primary,
+                            unfocusedBorderColor = MaterialTheme.colorScheme.outline,
+                            unfocusedContainerColor = MaterialTheme.colorScheme.background
                         ),
                     )
                     InputMenu(
@@ -555,9 +555,9 @@ fun ParameterLists(modifier: Modifier = Modifier, parameters: List<Parameter>) {
                         value = parameters.name,
                         onValueChange = {},
                         colors = OutlinedTextFieldDefaults.colors(
-                            focusedBorderColor = ThemeColor.primary,
-                            unfocusedBorderColor = ThemeColor.border,
-                            unfocusedContainerColor = ThemeColor.background
+                            focusedBorderColor = MaterialTheme.colorScheme.primary,
+                            unfocusedBorderColor = MaterialTheme.colorScheme.outline,
+                            unfocusedContainerColor = MaterialTheme.colorScheme.background
                         ),
                     )
                 }
@@ -614,7 +614,7 @@ private fun GoalFormPreview() {
 @Composable
 private fun ParameterListsPreview() {
     Card(
-        modifier = Modifier.background(ThemeColor.onBackground).padding(16.dp)
+        modifier = Modifier.background(MaterialTheme.colorScheme.surface).padding(16.dp)
     ) {
         ParameterLists(
             parameters = listOf(
