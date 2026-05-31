@@ -2,16 +2,13 @@ package com.nabeelkm.workout.viewmodel
 
 import androidx.lifecycle.ViewModel
 import androidx.lifecycle.viewModelScope
-import com.nabeelkm.workout.Screen
 import com.nabeelkm.workout.entity.Goal
 import com.nabeelkm.workout.entity.GoalStatus
 import com.nabeelkm.workout.entity.Parameter
-import com.nabeelkm.workout.navigation.Navigator
 import com.nabeelkm.workout.repository.GoalRepository
 import kotlinx.coroutines.Dispatchers
 import kotlinx.coroutines.IO
 import kotlinx.coroutines.flow.MutableStateFlow
-import kotlinx.coroutines.flow.StateFlow
 import kotlinx.coroutines.flow.asStateFlow
 import kotlinx.coroutines.flow.update
 import kotlinx.coroutines.launch
@@ -37,7 +34,6 @@ data class FormState(
 
 class GoalFormViewModel(
     val goalRepository: GoalRepository,
-    val navigator: Navigator,
 ): ViewModel() {
     private val _goalId = MutableStateFlow<Int?>(null)
     private val _formState = MutableStateFlow(FormState())
@@ -46,8 +42,16 @@ class GoalFormViewModel(
     val existingGoal = _existingGoal.asStateFlow()
 
     fun loadGoal(id: Int) {
-        _goalId.value = id
+        _goalId.update { id }
         loadExistingGoal()
+    }
+
+    fun resetStates() {
+        _goalId.update { null }
+        _existingGoal.update { null }
+        _formState.update {
+            FormState()
+        }
     }
 
     private fun loadExistingGoal() {
@@ -67,8 +71,6 @@ class GoalFormViewModel(
                         completedAtDisplay = goal.completedAt?.let { formatDateTime(it) } ?: "",
                     )
                 }
-            } else {
-                navigator.setRoot(Screen.GoalIndex)
             }
         }
     }
@@ -89,8 +91,6 @@ class GoalFormViewModel(
         withContext(Dispatchers.IO) {
             goalRepository.insertOne(newGoal)
         }
-
-        navigator.goBack()
     }
     fun onUpdate() = viewModelScope.launch {
         val goal = _existingGoal.value ?: return@launch
@@ -108,8 +108,6 @@ class GoalFormViewModel(
         withContext(Dispatchers.IO) {
             goalRepository.upsert(updatedGoal)
         }
-
-        navigator.goBack()
     }
 
     fun onNameChanges(name: String) {

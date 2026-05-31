@@ -41,10 +41,11 @@ import androidx.compose.ui.text.font.FontWeight
 import androidx.compose.ui.tooling.preview.Preview
 import androidx.compose.ui.unit.dp
 import androidx.lifecycle.compose.collectAsStateWithLifecycle
-import com.nabeelkm.workout.Screen
 import com.nabeelkm.workout.entity.Goal
 import com.nabeelkm.workout.entity.GoalStatus
-import com.nabeelkm.workout.navigation.Navigator
+import com.nabeelkm.workout.navigation.AppRoute
+import com.nabeelkm.workout.navigation.HomeNavigator
+import com.nabeelkm.workout.navigation.HomeRoute
 import com.nabeelkm.workout.theme.Theme
 import com.nabeelkm.workout.theme.ThemeColor
 import com.nabeelkm.workout.viewmodel.GoalIndexViewModel
@@ -60,7 +61,7 @@ import kotlin.time.Instant
 @Composable
 fun GoalIndexScreen(
     viewModel: GoalIndexViewModel = koinViewModel(),
-    navigator: Navigator
+    navigator: HomeNavigator
 ) {
     val activeGoals by viewModel.activeGoals.collectAsStateWithLifecycle()
     val newGoals by viewModel.newGoals.collectAsStateWithLifecycle()
@@ -68,10 +69,10 @@ fun GoalIndexScreen(
     GoalIndexContent(
         activeGoals = activeGoals,
         newGoals = newGoals,
-        onAddGoal = { navigator.navigate(Screen.GoalAddForm) },
+        onAddGoal = { navigator.navigate(AppRoute.AddGoal) },
         onDelete = viewModel::deleteGoal,
-        onEdit = { goal -> navigator.navigate(Screen.GoalEditForm(goalId = goal.id)) },
-        onNavigateToDetail = { goal -> navigator.navigate(Screen.GoalIndexDetail(goal.id)) }
+        onEdit = { goal -> navigator.navigate(AppRoute.UpdateGoal(goalId = goal.id)) },
+        onNavigateToDetail = { goal -> navigator.navigate(AppRoute.DetailGoal(goal.id)) }
     )
 }
 

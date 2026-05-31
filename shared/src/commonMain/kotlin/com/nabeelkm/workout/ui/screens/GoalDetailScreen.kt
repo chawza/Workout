@@ -1,5 +1,6 @@
 package com.nabeelkm.workout.ui.screens
 
+import androidx.compose.foundation.BorderStroke
 import androidx.compose.foundation.layout.Arrangement
 import androidx.compose.foundation.layout.Box
 import androidx.compose.foundation.layout.Column
@@ -18,10 +19,12 @@ import androidx.compose.material3.MaterialTheme
 import androidx.compose.material3.MultiChoiceSegmentedButtonRow
 import androidx.compose.material3.Scaffold
 import androidx.compose.material3.SegmentedButton
+import androidx.compose.material3.SegmentedButtonDefaults
 import androidx.compose.material3.Text
 import androidx.compose.material3.TopAppBar
 import androidx.compose.material3.TopAppBarDefaults
 import androidx.compose.runtime.Composable
+import androidx.compose.runtime.LaunchedEffect
 import androidx.compose.runtime.rememberCoroutineScope
 import androidx.compose.ui.Alignment
 import androidx.compose.ui.Modifier
@@ -40,10 +43,13 @@ import com.nabeelkm.workout.ui.components.Card
 import com.nabeelkm.workout.ui.components.PrimaryButton
 import com.nabeelkm.workout.utils.formatDate
 import com.nabeelkm.workout.utils.formatDateTime
+import com.nabeelkm.workout.navigation.AppNavigator
+import com.nabeelkm.workout.navigation.AppRoute
 import com.nabeelkm.workout.viewmodel.GoalDetailUIState
 import com.nabeelkm.workout.viewmodel.GoalDetailViewModel
 import kotlinx.coroutines.launch
 import org.jetbrains.compose.resources.painterResource
+import org.koin.compose.viewmodel.koinViewModel
 import workout.shared.generated.resources.Res
 import workout.shared.generated.resources.workout_icon
 import kotlin.time.Instant
@@ -51,10 +57,16 @@ import kotlin.time.Instant
 
 @Composable
 fun GoalDetailScreen(
-    viewModel: GoalDetailViewModel,
+    goalId: Int,
+    viewModel: GoalDetailViewModel = koinViewModel(),
+    navigator: AppNavigator,
 ) {
     val uiState = viewModel.uiState.collectAsStateWithLifecycle()
     val scope = rememberCoroutineScope()
+
+    LaunchedEffect(goalId) {
+        viewModel.loadGoal(goalId)
+    }
 
     when (val state = uiState.value) {
         is GoalDetailUIState.Idle -> {
@@ -81,7 +93,9 @@ fun GoalDetailScreen(
                         viewModel.switchState(status)
                     }
                 },
-                navigateToEditScreen = viewModel::navigateToEditScreen,
+                navigateToEditScreen = {
+                    navigator.navigate(AppRoute.UpdateGoal(state.goalWithParameter.goal.id))
+                },
             )
         }
     }
@@ -189,12 +203,19 @@ fun GoalDetailHeader(
             MultiChoiceSegmentedButtonRow(
                 modifier = Modifier.fillMaxWidth()
             ) {
+                val buttonColors = SegmentedButtonDefaults.colors(
+                    activeContainerColor = ThemeColor.primary,
+                    activeContentColor = ThemeColor.background,
+                )
                 SegmentedButton(
                     checked = goalStatus == GoalStatus.NEW,
                     onCheckedChange = {
                         onSwitchState(GoalStatus.NEW)
                     },
-                    shape = RoundedCornerShape(6.dp)
+                    shape = RoundedCornerShape(topStart = 6.dp, topEnd = 0.dp, bottomStart = 6.dp, bottomEnd = 0.dp),
+                    colors = buttonColors,
+                    border = BorderStroke(1.dp, ThemeColor.border),
+                    icon = {}
                 ) {
                     Text("New")
                 }
@@ -203,7 +224,10 @@ fun GoalDetailHeader(
                     onCheckedChange = {
                         onSwitchState(GoalStatus.ACTIVE)
                     },
-                    shape = RoundedCornerShape(6.dp)
+                    shape = RoundedCornerShape(0.dp),
+                    colors = buttonColors,
+                    border = BorderStroke(1.dp, ThemeColor.border),
+                    icon = {}
                 ) {
                     Text("Active")
                 }
@@ -212,7 +236,10 @@ fun GoalDetailHeader(
                     onCheckedChange = {
                         onSwitchState(GoalStatus.COMPLETED)
                     },
-                    shape = RoundedCornerShape(6.dp)
+                    shape = RoundedCornerShape(topStart = 0.dp, topEnd = 6.dp, bottomStart = 0.dp, bottomEnd = 6.dp),
+                    colors = buttonColors,
+                    border = BorderStroke(1.dp, ThemeColor.border),
+                    icon = {}
                 ) {
                     Text("Completed")
                 }

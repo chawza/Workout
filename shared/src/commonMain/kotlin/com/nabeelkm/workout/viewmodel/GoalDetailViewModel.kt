@@ -2,10 +2,8 @@ package com.nabeelkm.workout.viewmodel
 
 import androidx.lifecycle.ViewModel
 import androidx.lifecycle.viewModelScope
-import com.nabeelkm.workout.Screen
 import com.nabeelkm.workout.dao.GoalWithParameter
 import com.nabeelkm.workout.entity.GoalStatus
-import com.nabeelkm.workout.navigation.Navigator
 import com.nabeelkm.workout.repository.GoalRepository
 import kotlinx.coroutines.flow.MutableStateFlow
 import kotlinx.coroutines.flow.SharingStarted
@@ -26,7 +24,6 @@ sealed class GoalDetailUIState {
 @OptIn(kotlinx.coroutines.ExperimentalCoroutinesApi::class)
 class GoalDetailViewModel(
     val repository: GoalRepository,
-    public val navigator: Navigator,
 ): ViewModel() {
 
     private val _goalId = MutableStateFlow<Int?>(null)
@@ -65,10 +62,4 @@ class GoalDetailViewModel(
         }
     }
 
-    fun navigateToEditScreen() {
-        if (uiState.value is GoalDetailUIState.Success) {
-            val goalWithParameter = (uiState.value as GoalDetailUIState.Success).goalWithParameter
-            navigator.navigate(Screen.GoalEditForm(goalWithParameter.goal.id))
-        }
-    }
 }
