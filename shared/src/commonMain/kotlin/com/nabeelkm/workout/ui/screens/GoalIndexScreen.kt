@@ -46,6 +46,7 @@ import com.nabeelkm.workout.entity.GoalStatus
 import com.nabeelkm.workout.navigation.AppRoute
 import com.nabeelkm.workout.navigation.HomeNavigator
 import com.nabeelkm.workout.navigation.HomeRoute
+import com.nabeelkm.workout.theme.AppColor
 import com.nabeelkm.workout.theme.Theme
 import com.nabeelkm.workout.theme.ThemeColor
 import com.nabeelkm.workout.viewmodel.GoalIndexViewModel
@@ -100,7 +101,7 @@ private fun GoalIndexContent(
                         )
                         Button(
                             colors = ButtonDefaults.buttonColors().copy(
-                                containerColor = ThemeColor.primary
+                                containerColor = MaterialTheme.colorScheme.primary
                             ),
                             onClick = onAddGoal,
                             shape = RoundedCornerShape(10.dp),
@@ -110,7 +111,7 @@ private fun GoalIndexContent(
                         }
                     }
                 },
-                colors = TopAppBarDefaults.topAppBarColors(containerColor = ThemeColor.background)
+                colors = TopAppBarDefaults.topAppBarColors(containerColor = MaterialTheme.colorScheme.background)
             )
         },
         contentWindowInsets = WindowInsets(0.dp)
@@ -125,7 +126,8 @@ private fun GoalIndexContent(
             item {
                 Text(
                     "Active",
-                    Modifier.padding(bottom = 12.dp)
+                    style = MaterialTheme.typography.labelLarge,
+                    modifier = Modifier.padding(bottom = 12.dp)
                 )
             }
             items(items = activeGoals, key = { goal -> "active_${goal.id}" }) { goal ->
@@ -144,7 +146,8 @@ private fun GoalIndexContent(
             item {
                 Text(
                     "New",
-                    Modifier.padding(bottom = 12.dp)
+                    style = MaterialTheme.typography.labelLarge,
+                    modifier = Modifier.padding(bottom = 12.dp)
                 )
             }
             items(items = newGoals, key = { goal -> "new_${goal.id}" }) { goal ->
@@ -190,7 +193,7 @@ fun DangerTextButton(text: String, modifier: Modifier = Modifier, onClick: () ->
     val isHover by interactionSource.collectIsHoveredAsState()
     val isPressed by interactionSource.collectIsPressedAsState()
 
-    val color = if (isHover || isPressed) ThemeColor.danger else ThemeColor.textBlack
+    val color = if (isHover || isPressed) MaterialTheme.colorScheme.error else MaterialTheme.colorScheme.onSurface
     val containerColor = if (isHover || isPressed) color.copy(alpha = 0.1F) else Color.Unspecified
 
     TextButton(
@@ -215,10 +218,10 @@ fun GoalCard(goal: Goal, onDelete: (Goal) -> Unit = {}, onEdit: (Goal) -> Unit =
             .clickable {
                 navigateToDetail(goal)
             }
-            .border(1.dp, ThemeColor.border, RoundedCornerShape(10.dp))
+            .border(1.dp, MaterialTheme.colorScheme.outline, RoundedCornerShape(10.dp))
             .fillMaxWidth(),
         colors = CardDefaults.cardColors(
-            containerColor = ThemeColor.onBackground
+            containerColor = MaterialTheme.colorScheme.surface
         ),
     ) {
         Column(
@@ -248,7 +251,7 @@ fun GoalCard(goal: Goal, onDelete: (Goal) -> Unit = {}, onEdit: (Goal) -> Unit =
                 Column {
                     Text(
                         goal.name,
-                        fontWeight = FontWeight.SemiBold
+                        style = MaterialTheme.typography.bodyLarge.copy(fontWeight = FontWeight.SemiBold)
                     )
                     Text(
                         "$displayText - 0 Parameters",
@@ -259,8 +262,8 @@ fun GoalCard(goal: Goal, onDelete: (Goal) -> Unit = {}, onEdit: (Goal) -> Unit =
                 val status = goal.getStatus()
                 val labelColor = when(status) {
                     GoalStatus.NEW -> Color.Blue
-                    GoalStatus.ACTIVE -> ThemeColor.success
-                    GoalStatus.COMPLETED -> ThemeColor.muted
+                    GoalStatus.ACTIVE -> AppColor.success
+                    GoalStatus.COMPLETED -> MaterialTheme.colorScheme.onSurfaceVariant
                 }
                 Pill(
                     text = status.label,
@@ -268,7 +271,7 @@ fun GoalCard(goal: Goal, onDelete: (Goal) -> Unit = {}, onEdit: (Goal) -> Unit =
                 )
             }
 
-            HorizontalDivider(thickness = 1.dp, color = ThemeColor.borderSoft)
+            HorizontalDivider(thickness = 1.dp, color = MaterialTheme.colorScheme.outlineVariant)
 
             Row(
                 horizontalArrangement = Arrangement.spacedBy(8.dp)
@@ -278,9 +281,9 @@ fun GoalCard(goal: Goal, onDelete: (Goal) -> Unit = {}, onEdit: (Goal) -> Unit =
                         onEdit(goal)
                     },
                     shape = RoundedCornerShape(10.dp),
-                    border = BorderStroke(1.dp, ThemeColor.border),
+                    border = BorderStroke(1.dp, MaterialTheme.colorScheme.outline),
                     contentPadding = PaddingValues(12.dp, 6.dp),
-                    colors = ButtonDefaults.buttonColors(containerColor = Color.Transparent, contentColor = ThemeColor.textBlack)
+                    colors = ButtonDefaults.buttonColors(containerColor = Color.Transparent, contentColor = MaterialTheme.colorScheme.onSurface)
                 ) {
                     Text("Edit", style = MaterialTheme.typography.bodySmall)
                 }

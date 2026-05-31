@@ -9,6 +9,7 @@ import androidx.compose.material3.BottomAppBar
 import androidx.compose.material3.Icon
 import androidx.compose.material3.IconButton
 import androidx.compose.material3.IconButtonDefaults
+import androidx.compose.material3.MaterialTheme
 import androidx.compose.runtime.Composable
 import androidx.compose.runtime.snapshots.SnapshotStateList
 import androidx.compose.ui.Modifier
@@ -41,7 +42,7 @@ fun BottomNavigation(navigation: HomeNavigator) {
                     navigation.navigate(HomeRoute.Home)
                 },
                 colors = IconButtonDefaults.iconButtonColors().copy(
-                    contentColor = if (currentScreen.value == HomeRoute.Home) ThemeColor.primary else ThemeColor.muted
+                    contentColor = if (currentScreen.value == HomeRoute.Home) MaterialTheme.colorScheme.primary else MaterialTheme.colorScheme.onSurfaceVariant
                 )
             ) {
                 Icon(
@@ -55,7 +56,7 @@ fun BottomNavigation(navigation: HomeNavigator) {
                     navigation.navigate(HomeRoute.GoalIndex)
                 },
                 colors = IconButtonDefaults.iconButtonColors().copy(
-                    contentColor = if (currentScreen.value == HomeRoute.GoalIndex) ThemeColor.primary else ThemeColor.muted
+                    contentColor = if (currentScreen.value == HomeRoute.GoalIndex) MaterialTheme.colorScheme.primary else MaterialTheme.colorScheme.onSurfaceVariant
                 )
             ) {
                 Icon(
@@ -69,7 +70,7 @@ fun BottomNavigation(navigation: HomeNavigator) {
                     navigation.navigate(HomeRoute.Settings)
                 },
                 colors = IconButtonDefaults.iconButtonColors().copy(
-                    contentColor = if (currentScreen.value == HomeRoute.Settings) ThemeColor.primary else ThemeColor.muted
+                    contentColor = if (currentScreen.value == HomeRoute.Settings) MaterialTheme.colorScheme.primary else MaterialTheme.colorScheme.onSurfaceVariant
                 )
             ) {
                 Icon(
