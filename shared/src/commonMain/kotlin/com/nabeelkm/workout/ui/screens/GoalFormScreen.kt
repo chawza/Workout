@@ -61,8 +61,6 @@ import com.nabeelkm.workout.theme.ThemeColor
 import com.nabeelkm.workout.ui.components.PrimaryButton
 import com.nabeelkm.workout.viewmodel.FormState
 import com.nabeelkm.workout.viewmodel.GoalFormViewModel
-import kotlinx.coroutines.flow.MutableStateFlow
-import kotlinx.coroutines.flow.StateFlow
 import kotlinx.datetime.TimeZone
 import kotlinx.datetime.toLocalDateTime
 import org.koin.compose.viewmodel.koinViewModel
@@ -75,15 +73,14 @@ fun GoalFormScreen(
     navigator: Navigator,
 ) {
     val existingGoal by viewModel.existingGoal.collectAsState()
+    val formState by viewModel.formState.collectAsState()
 
-    GoalFormScreen(
+    GoalFormContent(
         existing = existingGoal,
-        formStateFlow = viewModel.formState,
+        formState = formState,
         onAdd = viewModel::addGoal,
         onEdit = viewModel::onUpdate,
-        onCancel = {
-            navigator.goBack()
-        },
+        onCancel = { navigator.goBack() },
         onNameChange = viewModel::onNameChanges,
         onStartDateChange = viewModel::onStartDateChanges,
         onStartTimeChange = viewModel::onStartTimeChanges,
@@ -94,9 +91,9 @@ fun GoalFormScreen(
 }
 
 @Composable
-fun GoalFormScreen(
+private fun GoalFormContent(
     existing: Goal? = null,
-    formStateFlow: StateFlow<FormState>,
+    formState: FormState,
     onAdd: () -> Unit = {},
     onEdit: () -> Unit = {},
     onCancel: () -> Unit = {},
@@ -137,7 +134,6 @@ fun GoalFormScreen(
             )
         }
     ) { innerPadding ->
-        val formState by formStateFlow.collectAsState()
         Column(
             modifier = Modifier.padding(innerPadding).fillMaxSize()
                 .verticalScroll(rememberScrollState()).padding(16.dp),
@@ -421,6 +417,7 @@ fun GoalFormScreen(
     }
 }
 
+@OptIn(ExperimentalMaterial3Api::class)
 @Composable
 fun DatePickerModal(
     onDateSelected: (Long?) -> Unit,
@@ -586,23 +583,19 @@ fun <T> InputMenu(
 
 @Preview
 @Composable
-fun GoalFormScreenPreview() {
-    val formState = MutableStateFlow(
-        FormState(
-            parameters = listOf()
-        )
-    )
+private fun GoalFormPreview() {
     Theme {
-        GoalFormScreen(
-            onAdd = {},
-            formStateFlow = formState,
+        GoalFormContent(
+            formState = FormState(
+                parameters = listOf()
+            )
         )
     }
 }
 
 @Preview
 @Composable
-fun ParameterListsPreview() {
+private fun ParameterListsPreview() {
     Card(
         modifier = Modifier.background(ThemeColor.onBackground).padding(16.dp)
     ) {

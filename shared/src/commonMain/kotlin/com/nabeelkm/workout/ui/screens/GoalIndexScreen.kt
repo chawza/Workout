@@ -34,7 +34,6 @@ import androidx.compose.material3.TopAppBarDefaults
 import androidx.compose.runtime.Composable
 import androidx.compose.runtime.getValue
 import androidx.compose.runtime.remember
-import androidx.compose.runtime.snapshots.SnapshotStateList
 import androidx.compose.ui.Alignment
 import androidx.compose.ui.Modifier
 import androidx.compose.ui.graphics.Color
@@ -49,9 +48,6 @@ import com.nabeelkm.workout.navigation.Navigator
 import com.nabeelkm.workout.theme.Theme
 import com.nabeelkm.workout.theme.ThemeColor
 import com.nabeelkm.workout.viewmodel.GoalIndexViewModel
-import kotlinx.coroutines.flow.MutableStateFlow
-import kotlinx.coroutines.flow.StateFlow
-import kotlinx.coroutines.flow.asStateFlow
 import kotlinx.datetime.LocalDateTime
 import kotlinx.datetime.TimeZone
 import kotlinx.datetime.format.MonthNames
@@ -66,23 +62,27 @@ fun GoalIndexScreen(
     viewModel: GoalIndexViewModel = koinViewModel(),
     navigator: Navigator
 ) {
-    GoalIndexScreen(
-        activeGoalsStateFlow = viewModel.activeGoals,
-        newGoalsStateFlow = viewModel.newGoals,
-        navigator = navigator,
+    val activeGoals by viewModel.activeGoals.collectAsStateWithLifecycle()
+    val newGoals by viewModel.newGoals.collectAsStateWithLifecycle()
+
+    GoalIndexContent(
+        activeGoals = activeGoals,
+        newGoals = newGoals,
+        onAddGoal = { navigator.navigate(Screen.GoalAddForm) },
         onDelete = viewModel::deleteGoal,
-        onEdit = { goal ->
-            navigator.navigate(Screen.GoalEditForm(goalId = goal.id))
-        }
+        onEdit = { goal -> navigator.navigate(Screen.GoalEditForm(goalId = goal.id)) },
+        onNavigateToDetail = { goal -> navigator.navigate(Screen.GoalIndexDetail(goal.id)) }
     )
 }
+
 @Composable
-fun GoalIndexScreen(
-    activeGoalsStateFlow: StateFlow<List<Goal>>,
-    newGoalsStateFlow: StateFlow<List<Goal>>,
-    navigator: Navigator,
+private fun GoalIndexContent(
+    activeGoals: List<Goal>,
+    newGoals: List<Goal>,
+    onAddGoal: () -> Unit = {},
     onDelete: (Goal) -> Unit = {},
-    onEdit: (Goal) -> Unit = {}
+    onEdit: (Goal) -> Unit = {},
+    onNavigateToDetail: (Goal) -> Unit = {}
 ) {
     Scaffold(
         topBar = {
@@ -101,11 +101,7 @@ fun GoalIndexScreen(
                             colors = ButtonDefaults.buttonColors().copy(
                                 containerColor = ThemeColor.primary
                             ),
-                            onClick = {
-                                navigator.navigate(
-                                    Screen.GoalAddForm
-                                )
-                            },
+                            onClick = onAddGoal,
                             shape = RoundedCornerShape(10.dp),
                             contentPadding = PaddingValues(18.dp, 10.dp)
                         ){
@@ -118,8 +114,6 @@ fun GoalIndexScreen(
         },
         contentWindowInsets = WindowInsets(0.dp)
     ) { innerPadding ->
-        val activeGoals by activeGoalsStateFlow.collectAsStateWithLifecycle()
-        val newGoals by newGoalsStateFlow.collectAsStateWithLifecycle()
         LazyColumn(
             modifier = Modifier
                 .fillMaxSize()
@@ -138,9 +132,7 @@ fun GoalIndexScreen(
                     goal,
                     onDelete = onDelete,
                     onEdit = onEdit,
-                    navigateToDetail = {
-                        navigator.navigate(Screen.GoalIndexDetail(goal.id))
-                    }
+                    navigateToDetail = onNavigateToDetail
                 )
             }
 
@@ -159,9 +151,7 @@ fun GoalIndexScreen(
                     goal,
                     onDelete = onDelete,
                     onEdit = onEdit,
-                    navigateToDetail = {
-                        navigator.navigate(Screen.GoalIndexDetail(goal.id))
-                    }
+                    navigateToDetail = onNavigateToDetail
                 )
             }
         }
@@ -306,7 +296,7 @@ fun GoalCard(goal: Goal, onDelete: (Goal) -> Unit = {}, onEdit: (Goal) -> Unit =
 
 @Preview
 @Composable
-fun GoalCardPreview() {
+private fun GoalCardPreview() {
     Theme {
         Column(
             verticalArrangement = Arrangement.spacedBy(16.dp)
@@ -347,52 +337,47 @@ fun GoalCardPreview() {
 
 @Preview
 @Composable
-fun GoalIndexScreenPreview() {
-    val goalsStateFlow = MutableStateFlow(
-        listOf(
-            Goal(
-                0,
-                "Running",
-                status = GoalStatus.ACTIVE.value,
-                createdAt = Instant.parse("2024-05-24T10:30:00Z").toEpochMilliseconds(),
-                completedAt = null,
-                startAt = 1750611600000
-            ),
-            Goal(
-                0,
-                "Rucking",
-                status = GoalStatus.ACTIVE.value,
-                createdAt = Instant.parse("2024-05-24T10:30:00Z").toEpochMilliseconds(),
-                completedAt = null,
-                startAt = 1750611600000
-            )
+private fun GoalIndexPreview() {
+    val activeGoals = listOf(
+        Goal(
+            0,
+            "Running",
+            status = GoalStatus.ACTIVE.value,
+            createdAt = Instant.parse("2024-05-24T10:30:00Z").toEpochMilliseconds(),
+            completedAt = null,
+            startAt = 1750611600000
+        ),
+        Goal(
+            0,
+            "Rucking",
+            status = GoalStatus.ACTIVE.value,
+            createdAt = Instant.parse("2024-05-24T10:30:00Z").toEpochMilliseconds(),
+            completedAt = null,
+            startAt = 1750611600000
         )
-    ).asStateFlow()
-    val newStateFlow = MutableStateFlow(
-        listOf(
-            Goal(
-                0,
-                "Running",
-                status = GoalStatus.NEW.value,
-                createdAt = Instant.parse("2024-05-24T10:30:00Z").toEpochMilliseconds(),
-                completedAt = null,
-                startAt = 1750611600000
-            ),
-            Goal(
-                0,
-                "Rucking",
-                status = GoalStatus.NEW.value,
-                createdAt = Instant.parse("2024-05-24T10:30:00Z").toEpochMilliseconds(),
-                completedAt = null,
-                startAt = 1750611600000
-            )
+    )
+    val newGoals = listOf(
+        Goal(
+            0,
+            "Swimming",
+            status = GoalStatus.NEW.value,
+            createdAt = Instant.parse("2024-05-24T10:30:00Z").toEpochMilliseconds(),
+            completedAt = null,
+            startAt = 1750611600000
+        ),
+        Goal(
+            0,
+            "Cycling",
+            status = GoalStatus.NEW.value,
+            createdAt = Instant.parse("2024-05-24T10:30:00Z").toEpochMilliseconds(),
+            completedAt = null,
+            startAt = 1750611600000
         )
-    ).asStateFlow()
+    )
     Theme {
-        GoalIndexScreen(
-            goalsStateFlow,
-            newStateFlow,
-            Navigator(SnapshotStateList())
+        GoalIndexContent(
+            activeGoals = activeGoals,
+            newGoals = newGoals
         )
     }
 }
