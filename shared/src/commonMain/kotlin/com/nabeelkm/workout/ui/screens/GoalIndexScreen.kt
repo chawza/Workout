@@ -12,6 +12,8 @@ import androidx.compose.foundation.layout.Column
 import androidx.compose.foundation.layout.PaddingValues
 import androidx.compose.foundation.layout.Row
 import androidx.compose.foundation.layout.Spacer
+import androidx.compose.foundation.layout.WindowInsets
+import androidx.compose.foundation.layout.fillMaxSize
 import androidx.compose.foundation.layout.fillMaxWidth
 import androidx.compose.foundation.layout.height
 import androidx.compose.foundation.layout.padding
@@ -113,15 +115,16 @@ fun GoalIndexScreen(
                 },
                 colors = TopAppBarDefaults.topAppBarColors(containerColor = ThemeColor.background)
             )
-        }
+        },
+        contentWindowInsets = WindowInsets(0.dp)
     ) { innerPadding ->
         val activeGoals by activeGoalsStateFlow.collectAsStateWithLifecycle()
         val newGoals by newGoalsStateFlow.collectAsStateWithLifecycle()
         LazyColumn(
             modifier = Modifier
-                .padding(innerPadding)
-                .fillMaxWidth(),
-            contentPadding = PaddingValues(16.dp, 16.dp, 16.dp, 100.dp),
+                .fillMaxSize()
+                .padding(innerPadding),
+            contentPadding = PaddingValues(16.dp),
             verticalArrangement = Arrangement.spacedBy(12.dp)
         ) {
             item {

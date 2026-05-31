@@ -10,6 +10,7 @@ import com.nabeelkm.workout.repository.GoalRepository
 import com.nabeelkm.workout.ui.screens.GoalDetailScreen
 import com.nabeelkm.workout.ui.screens.GoalFormScreen
 import com.nabeelkm.workout.ui.screens.GoalIndexScreen
+import com.nabeelkm.workout.ui.screens.SettingsScreen
 import com.nabeelkm.workout.viewmodel.GoalDetailViewModel
 import com.nabeelkm.workout.viewmodel.GoalFormViewModel
 import com.nabeelkm.workout.viewmodel.GoalIndexViewModel
@@ -18,7 +19,6 @@ import org.koin.core.annotation.KoinExperimentalAPI
 import org.koin.core.module.Module
 import org.koin.core.module.dsl.singleOf
 import org.koin.core.module.dsl.viewModelOf
-import org.koin.core.parameter.parametersOf
 import org.koin.dsl.module
 import org.koin.dsl.navigation3.navigation
 
@@ -58,12 +58,17 @@ val sharedModule = module {
         )
     }
     navigation<Screen.GoalEditForm> {
+        val vm = koinViewModel<GoalFormViewModel>()
+        LaunchedEffect(it.goalId) {
+            vm.loadGoal(it.goalId)
+        }
         GoalFormScreen(
-            viewModel = koinViewModel {
-                parametersOf(it.goalId)
-            },
+            viewModel = vm,
             navigator = get(),
         )
+    }
+    navigation<Screen.Settings> {
+        SettingsScreen()
     }
     navigation<Screen.Home> {
 
