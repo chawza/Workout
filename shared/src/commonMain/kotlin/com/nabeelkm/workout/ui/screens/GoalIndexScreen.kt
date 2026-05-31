@@ -296,7 +296,7 @@ fun GoalCard(goal: Goal, onDelete: (Goal) -> Unit = {}, onEdit: (Goal) -> Unit =
 
 @Preview
 @Composable
-fun GoalCardPreview() {
+private fun GoalCardPreview() {
     Theme {
         Column(
             verticalArrangement = Arrangement.spacedBy(16.dp)
@@ -337,7 +337,7 @@ fun GoalCardPreview() {
 
 @Preview
 @Composable
-fun GoalIndexPreview() {
+private fun GoalIndexPreview() {
     val activeGoals = listOf(
         Goal(
             0,

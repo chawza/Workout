@@ -42,7 +42,7 @@ All business logic and UI live in `shared/` (the KMP module). Platform-specific 
 | Database | `database/` | `AppDatabase` (Room), `DatabaseBuilder` (`expect`/`actual` per platform) |
 | Repository | `repository/` | `GoalRepository` — single source of truth, exposes `Flow`s |
 | ViewModels | `viewmodel/` | AndroidX `ViewModel` subclasses; UI state modeled as sealed classes |
-| Screens | `ui/screens/` | Composable screens receiving ViewModel + Navigator |
+| Screens | `ui/screens/` | Composable screens receiving ViewModel + Navigator. Follows the **Screen / Content / Preview** pattern (see below). |
 | Components | `ui/components/` | Shared composables (buttons, cards, bottom nav) |
 | Navigation | `navigation/Navigator.kt` | Custom back-stack navigator backed by `SnapshotStateList<Screen>` |
 | DI | `di/KoinModules.kt` | `sharedModule` wires everything; `expect val platformModule` for per-platform extras |
@@ -58,6 +58,37 @@ Four Room entities: `Goal` → `Parameter` (1-to-many), `Goal` → `Workout` (1-
 ### DI wiring
 
 Koin is initialized per-platform (`androidMain/di/KoinInit.kt`, `jvmMain/di/PlatformModule.jvm.kt`, etc.). The shared `sharedModule` registers the DB, repository, all ViewModels, the Navigator, and the navigation entry providers using `koin-compose-navigation3`.
+
+### Screen / Content / Preview pattern
+
+Every screen in `ui/screens/` follows a three-part structure:
+
+1. **`*Content`** — `private @Composable`
+   - Accepts only plain UI state (e.g. `List<Goal>`, `FormState`) and callbacks (`onAdd`, `onDelete`, `onNavigateToDetail`).
+   - **Never** receives a `ViewModel`, `Navigator`, `StateFlow`, or `Flow`.
+   - Contains all layout logic (Scaffold, lists, cards, etc.).
+
+2. **`*Screen`** — `public @Composable`
+   - Accepts the `ViewModel` (and `Navigator` if needed).
+   - Collects from `StateFlow`s / observes UI state.
+   - Wires ViewModel actions and navigation into plain callbacks, then delegates to `*Content`.
+
+3. **`*Preview`** — `private @Composable @Preview`
+   - Calls the private `*Content` with fake/static data.
+   - No repository, database, or ViewModel required.
+
+**Example:**
+```kotlin
+@Composable
+fun GoalIndexScreen(viewModel: GoalIndexViewModel, navigator: Navigator) { /* collects + wires */ }
+
+@Composable
+private fun GoalIndexContent(activeGoals: List<Goal>, newGoals: List<Goal>, ...) { /* UI only */ }
+
+@Preview
+@Composable
+private fun GoalIndexPreview() { GoalIndexContent(fakeGoals, fakeGoals) }
+```
 
 ### Platform-specific implementations
 

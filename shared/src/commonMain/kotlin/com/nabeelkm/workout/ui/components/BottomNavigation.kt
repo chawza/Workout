@@ -83,7 +83,7 @@ fun BottomNavigation(navigation: Navigator) {
 
 @Preview
 @Composable
-fun BottomNavigationPreview() {
+private fun BottomNavigationPreview() {
     val navigator = Navigator(SnapshotStateList())
     navigator.setRoot(Screen.GoalIndex)
     BottomNavigation(navigator)

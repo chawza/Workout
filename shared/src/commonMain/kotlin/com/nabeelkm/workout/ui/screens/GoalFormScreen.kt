@@ -583,7 +583,7 @@ fun <T> InputMenu(
 
 @Preview
 @Composable
-fun GoalFormPreview() {
+private fun GoalFormPreview() {
     Theme {
         GoalFormContent(
             formState = FormState(
@@ -595,7 +595,7 @@ fun GoalFormPreview() {
 
 @Preview
 @Composable
-fun ParameterListsPreview() {
+private fun ParameterListsPreview() {
     Card(
         modifier = Modifier.background(ThemeColor.onBackground).padding(16.dp)
     ) {

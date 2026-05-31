@@ -235,7 +235,7 @@ fun ConfigRow(
 
 @Preview
 @Composable
-fun SettingsScreenPreview() {
+private fun SettingsScreenPreview() {
     Theme {
         SettingsScreen()
     }

@@ -334,7 +334,7 @@ fun WorkoutDetailCard(modifier: Modifier = Modifier, workout: Workout) {
 
 @Preview
 @Composable
-fun GoalDetailPreview() {
+private fun GoalDetailPreview() {
     GoalDetailContent(
         goal = Goal(
             1,
