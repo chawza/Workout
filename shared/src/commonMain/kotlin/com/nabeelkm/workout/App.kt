@@ -1,92 +1,95 @@
 package com.nabeelkm.workout
 
+import androidx.compose.foundation.layout.Box
 import androidx.compose.foundation.layout.fillMaxSize
 import androidx.compose.foundation.layout.padding
 import androidx.compose.material3.Scaffold
+import androidx.compose.material3.Text
 import androidx.compose.runtime.Composable
-import androidx.compose.runtime.LaunchedEffect
 import androidx.compose.runtime.mutableStateListOf
 import androidx.compose.runtime.remember
+import androidx.compose.ui.Alignment
 import androidx.compose.ui.Modifier
-import androidx.lifecycle.viewmodel.compose.viewModel
 import androidx.navigation3.runtime.entryProvider
 import androidx.navigation3.ui.NavDisplay
-import com.nabeelkm.workout.navigation.Navigator
-import com.nabeelkm.workout.repository.GoalRepository
+import com.nabeelkm.workout.navigation.AppNavigator
+import com.nabeelkm.workout.navigation.AppRoute
+import com.nabeelkm.workout.navigation.HomeNavigator
+import com.nabeelkm.workout.navigation.HomeRoute
 import com.nabeelkm.workout.theme.Theme
 import com.nabeelkm.workout.ui.components.BottomNavigation
 import com.nabeelkm.workout.ui.screens.GoalDetailScreen
 import com.nabeelkm.workout.ui.screens.GoalFormScreen
 import com.nabeelkm.workout.ui.screens.GoalIndexScreen
 import com.nabeelkm.workout.ui.screens.SettingsScreen
-import com.nabeelkm.workout.viewmodel.GoalDetailViewModel
-import com.nabeelkm.workout.viewmodel.GoalFormViewModel
-import com.nabeelkm.workout.viewmodel.GoalIndexViewModel
-import kotlinx.serialization.Serializable
-import org.koin.compose.koinInject
-
-@Serializable
-sealed class Screen {
-    data object GoalIndex : Screen()
-    class GoalIndexDetail(val goalId: Int): Screen()
-    data object GoalAddForm: Screen()
-    class GoalEditForm(val goalId: Int): Screen()
-    data object Home : Screen()
-    data object Settings: Screen()
-}
 
 @Composable
 fun App() {
-    val backStack = remember { mutableStateListOf<Screen>(Screen.GoalIndex) }
-    val navigator = remember { Navigator(backStack) }
-    val repository = koinInject<GoalRepository>()
+    val appBackStack = remember { mutableStateListOf<AppRoute>(AppRoute.Home(HomeRoute.GoalIndex)) }
+    val appNavigator = remember { AppNavigator(appBackStack) }
+
     val routes = remember {
-        entryProvider<Screen> {
-            entry<Screen.GoalIndex> {
-                GoalIndexScreen(
-                    viewModel = viewModel<GoalIndexViewModel> { GoalIndexViewModel(repository) },
-                    navigator = navigator
-                )
-            }
-            entry<Screen.GoalIndexDetail> { screen ->
-                val vm = viewModel<GoalDetailViewModel> { GoalDetailViewModel(repository, navigator) }
-                LaunchedEffect(screen.goalId) {
-                    vm.loadGoal(screen.goalId)
+        entryProvider {
+            entry<AppRoute.Home> {
+                val homeBackStack = remember { mutableStateListOf<HomeRoute>(HomeRoute.GoalIndex) }
+                val homeNavigator = remember { HomeNavigator(homeBackStack, appNavigator) }
+
+                Scaffold(
+                    bottomBar = {
+                        BottomNavigation(homeNavigator)
+                    }
+                ) { innerPadding ->
+                    val homeRoutes = remember {
+                        entryProvider {
+                            entry<HomeRoute.GoalIndex> {
+                                GoalIndexScreen(
+                                    navigator = homeNavigator
+                                )
+                            }
+                            entry<HomeRoute.Home> {
+                                Box(contentAlignment = Alignment.Center) {
+                                    Text("Work In Progress")
+                                }
+                            }
+                            entry<HomeRoute.Settings> {
+                                SettingsScreen()
+                            }
+                        }
+                    }
+
+                    NavDisplay(
+                        modifier = Modifier.padding(innerPadding).fillMaxSize(),
+                        backStack = homeBackStack,
+                        onBack = { homeNavigator.goBack() },
+                        entryProvider = homeRoutes
+                    )
                 }
-                GoalDetailScreen(viewModel = vm)
             }
-            entry<Screen.GoalAddForm> {
+            entry<AppRoute.AddGoal> {
                 GoalFormScreen(
-                    viewModel = viewModel<GoalFormViewModel> { GoalFormViewModel(repository, navigator) },
-                    navigator = navigator
+                    navigator = appNavigator
                 )
             }
-            entry<Screen.GoalEditForm> { screen ->
-                val vm = viewModel<GoalFormViewModel> { GoalFormViewModel(repository, navigator) }
-                LaunchedEffect(screen.goalId) {
-                    vm.loadGoal(screen.goalId)
-                }
-                GoalFormScreen(viewModel = vm, navigator = navigator)
+            entry<AppRoute.UpdateGoal> { route ->
+                GoalFormScreen(
+                    goalId = route.goalId,
+                    navigator = appNavigator
+                )
             }
-            entry<Screen.Settings> {
-                SettingsScreen()
-            }
-            entry<Screen.Home> {
+            entry<AppRoute.DetailGoal> { route ->
+                GoalDetailScreen(
+                    goalId = route.goalId,
+                    navigator = appNavigator
+                )
             }
         }
     }
     Theme {
-        Scaffold(
-            bottomBar = {
-                BottomNavigation(navigator)
-            }
-        ) { innerPadding ->
-            NavDisplay(
-                modifier = Modifier.padding(innerPadding).fillMaxSize(),
-                backStack = backStack,
-                onBack = { navigator.goBack() },
-                entryProvider = routes
-            )
-        }
+        NavDisplay(
+            modifier = Modifier.fillMaxSize(),
+            backStack = appBackStack,
+            onBack = { appNavigator.goBack() },
+            entryProvider = routes
+        )
     }
 }

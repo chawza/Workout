@@ -24,6 +24,7 @@ import androidx.compose.material3.Text
 import androidx.compose.material3.TopAppBar
 import androidx.compose.material3.TopAppBarDefaults
 import androidx.compose.runtime.Composable
+import androidx.compose.runtime.LaunchedEffect
 import androidx.compose.runtime.rememberCoroutineScope
 import androidx.compose.ui.Alignment
 import androidx.compose.ui.Modifier
@@ -42,10 +43,13 @@ import com.nabeelkm.workout.ui.components.Card
 import com.nabeelkm.workout.ui.components.PrimaryButton
 import com.nabeelkm.workout.utils.formatDate
 import com.nabeelkm.workout.utils.formatDateTime
+import com.nabeelkm.workout.navigation.AppNavigator
+import com.nabeelkm.workout.navigation.AppRoute
 import com.nabeelkm.workout.viewmodel.GoalDetailUIState
 import com.nabeelkm.workout.viewmodel.GoalDetailViewModel
 import kotlinx.coroutines.launch
 import org.jetbrains.compose.resources.painterResource
+import org.koin.compose.viewmodel.koinViewModel
 import workout.shared.generated.resources.Res
 import workout.shared.generated.resources.workout_icon
 import kotlin.time.Instant
@@ -53,10 +57,16 @@ import kotlin.time.Instant
 
 @Composable
 fun GoalDetailScreen(
-    viewModel: GoalDetailViewModel,
+    goalId: Int,
+    viewModel: GoalDetailViewModel = koinViewModel(),
+    navigator: AppNavigator,
 ) {
     val uiState = viewModel.uiState.collectAsStateWithLifecycle()
     val scope = rememberCoroutineScope()
+
+    LaunchedEffect(goalId) {
+        viewModel.loadGoal(goalId)
+    }
 
     when (val state = uiState.value) {
         is GoalDetailUIState.Idle -> {
@@ -83,7 +93,9 @@ fun GoalDetailScreen(
                         viewModel.switchState(status)
                     }
                 },
-                navigateToEditScreen = viewModel::navigateToEditScreen,
+                navigateToEditScreen = {
+                    navigator.navigate(AppRoute.UpdateGoal(state.goalWithParameter.goal.id))
+                },
             )
         }
     }

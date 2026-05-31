@@ -15,8 +15,9 @@ import androidx.compose.ui.Modifier
 import androidx.compose.ui.tooling.preview.Preview
 import androidx.compose.ui.unit.dp
 import androidx.lifecycle.compose.collectAsStateWithLifecycle
-import com.nabeelkm.workout.Screen
-import com.nabeelkm.workout.navigation.Navigator
+import com.nabeelkm.workout.navigation.AppNavigator
+import com.nabeelkm.workout.navigation.HomeNavigator
+import com.nabeelkm.workout.navigation.HomeRoute
 import com.nabeelkm.workout.theme.ThemeColor
 import org.jetbrains.compose.resources.painterResource
 import workout.shared.generated.resources.Res
@@ -25,7 +26,7 @@ import workout.shared.generated.resources.home
 import workout.shared.generated.resources.settings
 
 @Composable
-fun BottomNavigation(navigation: Navigator) {
+fun BottomNavigation(navigation: HomeNavigator) {
     val currentScreen = navigation.currentScreenFlow.collectAsStateWithLifecycle(null)
     BottomAppBar(
         modifier = Modifier.fillMaxWidth(),
@@ -37,10 +38,10 @@ fun BottomNavigation(navigation: Navigator) {
         ) {
             IconButton(
                 onClick = {
-                    navigation.navigate(Screen.Home)
+                    navigation.navigate(HomeRoute.Home)
                 },
                 colors = IconButtonDefaults.iconButtonColors().copy(
-                    contentColor = if (currentScreen.value == Screen.Home) ThemeColor.primary else ThemeColor.muted
+                    contentColor = if (currentScreen.value == HomeRoute.Home) ThemeColor.primary else ThemeColor.muted
                 )
             ) {
                 Icon(
@@ -51,10 +52,10 @@ fun BottomNavigation(navigation: Navigator) {
             }
             IconButton(
                 onClick = {
-                    navigation.navigate(Screen.GoalIndex)
+                    navigation.navigate(HomeRoute.GoalIndex)
                 },
                 colors = IconButtonDefaults.iconButtonColors().copy(
-                    contentColor = if (currentScreen.value == Screen.GoalIndex) ThemeColor.primary else ThemeColor.muted
+                    contentColor = if (currentScreen.value == HomeRoute.GoalIndex) ThemeColor.primary else ThemeColor.muted
                 )
             ) {
                 Icon(
@@ -65,10 +66,10 @@ fun BottomNavigation(navigation: Navigator) {
             }
             IconButton(
                 onClick = {
-                    navigation.navigate(Screen.Settings)
+                    navigation.navigate(HomeRoute.Settings)
                 },
                 colors = IconButtonDefaults.iconButtonColors().copy(
-                    contentColor = ThemeColor.muted
+                    contentColor = if (currentScreen.value == HomeRoute.Settings) ThemeColor.primary else ThemeColor.muted
                 )
             ) {
                 Icon(
@@ -84,7 +85,7 @@ fun BottomNavigation(navigation: Navigator) {
 @Preview
 @Composable
 private fun BottomNavigationPreview() {
-    val navigator = Navigator(SnapshotStateList())
-    navigator.setRoot(Screen.GoalIndex)
+    val navigator = HomeNavigator(SnapshotStateList(), AppNavigator(SnapshotStateList()))
+    navigator.setRoot(HomeRoute.Home)
     BottomNavigation(navigator)
 }

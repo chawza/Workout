@@ -42,6 +42,7 @@ import androidx.compose.material3.TopAppBarDefaults
 import androidx.compose.material3.rememberDatePickerState
 import androidx.compose.material3.rememberTimePickerState
 import androidx.compose.runtime.Composable
+import androidx.compose.runtime.LaunchedEffect
 import androidx.compose.runtime.collectAsState
 import androidx.compose.runtime.getValue
 import androidx.compose.runtime.mutableStateOf
@@ -55,7 +56,7 @@ import androidx.compose.ui.unit.dp
 import com.nabeelkm.workout.entity.Goal
 import com.nabeelkm.workout.entity.Parameter
 import com.nabeelkm.workout.entity.ParameterType
-import com.nabeelkm.workout.navigation.Navigator
+import com.nabeelkm.workout.navigation.AppNavigator
 import com.nabeelkm.workout.theme.Theme
 import com.nabeelkm.workout.theme.ThemeColor
 import com.nabeelkm.workout.ui.components.PrimaryButton
@@ -69,17 +70,32 @@ import kotlin.time.Clock
 
 @Composable
 fun GoalFormScreen(
+    goalId: Int? = null,
     viewModel: GoalFormViewModel = koinViewModel(),
-    navigator: Navigator,
+    navigator: AppNavigator,
 ) {
     val existingGoal by viewModel.existingGoal.collectAsState()
     val formState by viewModel.formState.collectAsState()
 
+    LaunchedEffect(goalId) {
+        if (goalId != null) {
+            viewModel.loadGoal(goalId)
+        } else {
+            viewModel.resetStates()
+        }
+    }
+
     GoalFormContent(
         existing = existingGoal,
         formState = formState,
-        onAdd = viewModel::addGoal,
-        onEdit = viewModel::onUpdate,
+        onAdd = {
+            viewModel.addGoal()
+            navigator.goBack()
+        },
+        onEdit = {
+            viewModel.onUpdate()
+            navigator.goBack()
+        },
         onCancel = { navigator.goBack() },
         onNameChange = viewModel::onNameChanges,
         onStartDateChange = viewModel::onStartDateChanges,
