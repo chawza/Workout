@@ -1,5 +1,6 @@
 package com.nabeelkm.workout.ui.screens
 
+import androidx.compose.foundation.BorderStroke
 import androidx.compose.foundation.layout.Arrangement
 import androidx.compose.foundation.layout.Box
 import androidx.compose.foundation.layout.Column
@@ -18,6 +19,7 @@ import androidx.compose.material3.MaterialTheme
 import androidx.compose.material3.MultiChoiceSegmentedButtonRow
 import androidx.compose.material3.Scaffold
 import androidx.compose.material3.SegmentedButton
+import androidx.compose.material3.SegmentedButtonDefaults
 import androidx.compose.material3.Text
 import androidx.compose.material3.TopAppBar
 import androidx.compose.material3.TopAppBarDefaults
@@ -189,12 +191,19 @@ fun GoalDetailHeader(
             MultiChoiceSegmentedButtonRow(
                 modifier = Modifier.fillMaxWidth()
             ) {
+                val buttonColors = SegmentedButtonDefaults.colors(
+                    activeContainerColor = ThemeColor.primary,
+                    activeContentColor = ThemeColor.background,
+                )
                 SegmentedButton(
                     checked = goalStatus == GoalStatus.NEW,
                     onCheckedChange = {
                         onSwitchState(GoalStatus.NEW)
                     },
-                    shape = RoundedCornerShape(6.dp)
+                    shape = RoundedCornerShape(topStart = 6.dp, topEnd = 0.dp, bottomStart = 6.dp, bottomEnd = 0.dp),
+                    colors = buttonColors,
+                    border = BorderStroke(1.dp, ThemeColor.border),
+                    icon = {}
                 ) {
                     Text("New")
                 }
@@ -203,7 +212,10 @@ fun GoalDetailHeader(
                     onCheckedChange = {
                         onSwitchState(GoalStatus.ACTIVE)
                     },
-                    shape = RoundedCornerShape(6.dp)
+                    shape = RoundedCornerShape(0.dp),
+                    colors = buttonColors,
+                    border = BorderStroke(1.dp, ThemeColor.border),
+                    icon = {}
                 ) {
                     Text("Active")
                 }
@@ -212,7 +224,10 @@ fun GoalDetailHeader(
                     onCheckedChange = {
                         onSwitchState(GoalStatus.COMPLETED)
                     },
-                    shape = RoundedCornerShape(6.dp)
+                    shape = RoundedCornerShape(topStart = 0.dp, topEnd = 6.dp, bottomStart = 0.dp, bottomEnd = 6.dp),
+                    colors = buttonColors,
+                    border = BorderStroke(1.dp, ThemeColor.border),
+                    icon = {}
                 ) {
                     Text("Completed")
                 }
