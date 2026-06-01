@@ -222,8 +222,10 @@ fun GoalDetailHeader(
                 modifier = Modifier.fillMaxWidth()
             ) {
                 val buttonColors = SegmentedButtonDefaults.colors(
-                    activeContainerColor = MaterialTheme.colorScheme.primary,
-                    activeContentColor = MaterialTheme.colorScheme.background,
+                    activeContainerColor = AppColor.bg,
+                    activeContentColor = AppColor.fg,
+                    inactiveContainerColor = AppColor.surface,
+                    inactiveContentColor = AppColor.muted,
                 )
                 SegmentedButton(
                     checked = goalStatus == GoalStatus.NEW,

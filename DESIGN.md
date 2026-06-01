@@ -281,3 +281,16 @@ See `design/components.md` for the full component inventory with states, tokens,
 - **Don't** introduce new colors outside the defined palette. Goal-specific colors come from the 10-color goal palette only.
 - **Don't** use gradients anywhere in the UI. Surfaces are flat, single-color fills.
 - **Don't** round corners beyond 14px on non-pill elements. The shape language is soft, not bubbly.
+
+
+## More references
+```
+design
+├── colors.md
+├── components.md
+├── data-model.md
+├── iconography.md
+├── motion.md
+├── spacing.md
+└── typography.md
+```

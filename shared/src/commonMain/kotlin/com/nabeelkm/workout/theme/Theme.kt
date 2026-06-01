@@ -10,6 +10,7 @@ import androidx.compose.ui.text.TextStyle
 import androidx.compose.ui.text.font.FontFamily
 import androidx.compose.ui.text.font.FontWeight
 import androidx.compose.ui.unit.dp
+import androidx.compose.ui.unit.em
 import androidx.compose.ui.unit.sp
 import org.jetbrains.compose.resources.Font
 import workout.shared.generated.resources.Res
@@ -57,6 +58,9 @@ object AppColor {
     val success = Color(0xFF10B981)
     val warn = Color(0xFFF59E0B)
     val danger = Color(0xFFEF4444)
+
+    // Goal-category palette (DESIGN.md). Add the rest here as goal theming is wired up.
+    val blue = Color(0xFF3B82F6)
 }
 
 object AppText {
@@ -129,22 +133,26 @@ fun Theme(content: @Composable () -> Unit) {
             displayLarge = TextStyle(
                 fontFamily = spaceGrotesk(),
                 fontSize = 28.sp,
-                fontWeight = FontWeight.Bold
+                fontWeight = FontWeight.Bold,
+                letterSpacing = (-0.018).em
             ),
             headlineLarge = TextStyle(
                 fontFamily = spaceGrotesk(),
                 fontSize = 22.sp,
-                fontWeight = FontWeight.Bold
+                fontWeight = FontWeight.Bold,
+                letterSpacing = (-0.018).em
             ),
             titleLarge = TextStyle(
                 fontFamily = spaceGrotesk(),
                 fontSize = 22.sp,
-                fontWeight = FontWeight.Bold
+                fontWeight = FontWeight.Bold,
+                letterSpacing = (-0.018).em
             ),
             titleMedium = TextStyle(
                 fontFamily = spaceGrotesk(),
                 fontSize = 22.sp,
-                fontWeight = FontWeight.Bold
+                fontWeight = FontWeight.Bold,
+                letterSpacing = (-0.018).em
             ),
             titleSmall = TextStyle(
                 fontFamily = dmSans(),
@@ -169,12 +177,12 @@ fun Theme(content: @Composable () -> Unit) {
             labelLarge = TextStyle(
                 fontFamily = dmSans(),
                 fontSize = 14.sp,
-                fontWeight = FontWeight.Medium
+                fontWeight = FontWeight.SemiBold
             ),
             labelMedium = TextStyle(
                 fontFamily = dmSans(),
-                fontSize = 12.sp,
-                fontWeight = FontWeight.Medium
+                fontSize = 14.sp,
+                fontWeight = FontWeight.SemiBold
             ),
             labelSmall = TextStyle(
                 fontFamily = dmSans(),
