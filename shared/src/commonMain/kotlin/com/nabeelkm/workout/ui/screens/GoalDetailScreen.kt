@@ -38,13 +38,13 @@ import com.nabeelkm.workout.entity.GoalStatus
 import com.nabeelkm.workout.entity.Parameter
 import com.nabeelkm.workout.entity.ParameterType
 import com.nabeelkm.workout.entity.Workout
-import com.nabeelkm.workout.theme.ThemeColor
 import com.nabeelkm.workout.ui.components.Card
 import com.nabeelkm.workout.ui.components.PrimaryButton
 import com.nabeelkm.workout.utils.formatDate
 import com.nabeelkm.workout.utils.formatDateTime
 import com.nabeelkm.workout.navigation.AppNavigator
 import com.nabeelkm.workout.navigation.AppRoute
+import com.nabeelkm.workout.theme.Theme
 import com.nabeelkm.workout.viewmodel.GoalDetailUIState
 import com.nabeelkm.workout.viewmodel.GoalDetailViewModel
 import kotlinx.coroutines.launch
@@ -362,53 +362,55 @@ fun WorkoutDetailCard(modifier: Modifier = Modifier, workout: Workout) {
 @Preview
 @Composable
 private fun GoalDetailPreview() {
-    GoalDetailContent(
-        goal = Goal(
-            1,
-            "Rucking",
-            status = GoalStatus.NEW.value,
-            createdAt = Instant.parse("2024-05-24T10:30:00Z").toEpochMilliseconds(),
-            startAt = Instant.parse("2024-05-24T10:30:00Z").toEpochMilliseconds(),
-            completedAt  = Instant.parse("2024-06-24T10:30:00Z").toEpochMilliseconds(),
-        ),
-        parameters = listOf(
-            Parameter(
-                id = 1,
-                goalId = 1,
-                name = "Distance",
-                unit = "KM",
-                type = ParameterType.FLOAT.value
+    Theme {
+        GoalDetailContent(
+            goal = Goal(
+                1,
+                "Rucking",
+                status = GoalStatus.NEW.value,
+                createdAt = Instant.parse("2024-05-24T10:30:00Z").toEpochMilliseconds(),
+                startAt = Instant.parse("2024-05-24T10:30:00Z").toEpochMilliseconds(),
+                completedAt  = Instant.parse("2024-06-24T10:30:00Z").toEpochMilliseconds(),
             ),
-            Parameter(
-                id = 2,
-                goalId = 1,
-                name = "Duration",
-                unit = "min",
-                type = ParameterType.INTEGER.value
+            parameters = listOf(
+                Parameter(
+                    id = 1,
+                    goalId = 1,
+                    name = "Distance",
+                    unit = "KM",
+                    type = ParameterType.FLOAT.value
+                ),
+                Parameter(
+                    id = 2,
+                    goalId = 1,
+                    name = "Duration",
+                    unit = "min",
+                    type = ParameterType.INTEGER.value
+                ),
+                Parameter(
+                    id = 3,
+                    goalId = 1,
+                    name = "pace",
+                    unit = "min/km",
+                    type = ParameterType.FLOAT.value
+                ),
             ),
-            Parameter(
-                id = 3,
-                goalId = 1,
-                name = "pace",
-                unit = "min/km",
-                type = ParameterType.FLOAT.value
-            ),
-        ),
-        workouts = listOf(
-            Workout(
-                id = 1,
-                goalId = 1,
-                notes = "Morning Run",
-                time = Instant.parse("2024-07-24T10:30:00Z").toEpochMilliseconds(),
-                duration = null
-            ),
-            Workout(
-                id = 2,
-                goalId = 1,
-                notes = "Evening Run",
-                time = Instant.parse("2024-08-24T10:30:00Z").toEpochMilliseconds(),
-                duration = null
+            workouts = listOf(
+                Workout(
+                    id = 1,
+                    goalId = 1,
+                    notes = "Morning Run",
+                    time = Instant.parse("2024-07-24T10:30:00Z").toEpochMilliseconds(),
+                    duration = null
+                ),
+                Workout(
+                    id = 2,
+                    goalId = 1,
+                    notes = "Evening Run",
+                    time = Instant.parse("2024-08-24T10:30:00Z").toEpochMilliseconds(),
+                    duration = null
+                )
             )
         )
-    )
+    }
 }

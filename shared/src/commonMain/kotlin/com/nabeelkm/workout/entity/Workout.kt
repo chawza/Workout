@@ -20,7 +20,7 @@ import androidx.room.PrimaryKey
     ]
 )
 data class Workout(
-    @PrimaryKey(autoGenerate = true) val id: Int,
+    @PrimaryKey(autoGenerate = true) val id: Long,
     val goalId: Int,
     val time: Long,
     val duration: Long?,

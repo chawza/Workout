@@ -90,6 +90,64 @@ private fun GoalIndexContent(activeGoals: List<Goal>, newGoals: List<Goal>, ...)
 private fun GoalIndexPreview() { GoalIndexContent(fakeGoals, fakeGoals) }
 ```
 
+## Design System
+
+### Typography — Three Fonts
+
+The app uses a three-font system matching the CSS design tokens. Fonts are configured per Material3 typography slot in `Theme.kt`.
+
+| Font | Role | Material3 Slots | How to Access |
+|---|---|---|---|
+| **Space Grotesk** | Display — brand names, screen titles, large headings | `displayLarge`, `headlineLarge`, `titleLarge`, `titleMedium` | `MaterialTheme.typography.titleLarge` etc. |
+| **DM Sans** | Body — all UI text, labels, buttons, descriptions | `titleSmall`, `bodyLarge`, `bodyMedium`, `bodySmall`, `labelLarge`, `labelMedium`, `labelSmall` | `MaterialTheme.typography.bodyMedium` etc. |
+| **Monospace** | Numbers — stats, dates, times, metadata | None (manual only) | `FontFamily.Monospace` |
+
+**Rule:** Do **not** hardcode `fontFamily` on individual `Text()` calls. Use the semantic `MaterialTheme.typography.*` slot and the correct font is applied automatically.
+
+**Examples:**
+```kotlin
+// Gets Space Grotesk automatically
+Text("Workouts", style = MaterialTheme.typography.titleMedium)
+
+// Gets DM Sans automatically
+Text("Morning Run", style = MaterialTheme.typography.bodyMedium)
+
+// Mono for numbers/stats (no Material slot — manual)
+Text("24km", fontFamily = FontFamily.Monospace)
+Text("07:30", fontFamily = FontFamily.Monospace)
+```
+
+### Colors
+
+Colors are defined in `AppColor` (CSS-aligned tokens) and mirrored into `ThemeColor` (legacy names). **Prefer `MaterialTheme.colorScheme` in UI code.**
+
+| Token | Material3 equivalent | Usage |
+|---|---|---|
+| `AppColor.accent` | `MaterialTheme.colorScheme.primary` | Coral buttons, active states, focus borders |
+| `AppColor.bg` | `MaterialTheme.colorScheme.background` | App background |
+| `AppColor.surface` | `MaterialTheme.colorScheme.surface` | Cards, sheets, dialogs |
+| `AppColor.fg` | `MaterialTheme.colorScheme.onSurface` | Primary text |
+| `AppColor.muted` | `MaterialTheme.colorScheme.onSurfaceVariant` | Secondary text, inactive icons |
+| `AppColor.border` | `MaterialTheme.colorScheme.outline` | Borders, dividers |
+| `AppColor.borderSoft` | `MaterialTheme.colorScheme.outlineVariant` | Subtle separators |
+| `AppColor.danger` | `MaterialTheme.colorScheme.error` | Destructive actions |
+
+**Custom tokens** (not in Material3 palette) are accessed via `AppColor` directly:
+```kotlin
+AppColor.accentHover    // #E85A3A
+AppColor.accentSoft     // 10% opacity coral
+AppColor.surfaceWarm    // #FFF5F3
+```
+
+### Spacing & Radius
+
+```kotlin
+AppSpace.s1  // 4.dp
+AppSpace.s4  // 16.dp
+AppRadius.md // 10.dp
+AppRadius.pill // 999.dp
+```
+
 ### Platform-specific implementations
 
 `expect`/`actual` pattern is used for:
