@@ -130,7 +130,7 @@ private fun SettingsScreenContent() {
             Card {
                 ConfigRow(
                     modifier = Modifier.fillMaxWidth(),
-                    title = "Default Screen",
+                    title = "Export Data",
                     description = "Download all workouts and goals as JSON",
                     actions = {
                         Button(
@@ -163,7 +163,7 @@ private fun SettingsScreenContent() {
                             ),
                             border = null
                         ) {
-                            Text("Export")
+                            Text("Clear")
                         }
                     }
                 )

@@ -192,9 +192,7 @@ private fun WorkoutDetailContent(
             // Workout title
             Text(
                 text = workout.notes?.takeIf { it.isNotBlank() } ?: "Workout",
-                style = MaterialTheme.typography.displayLarge.copy(
-                    letterSpacing = (-0.018).sp
-                )
+                style = MaterialTheme.typography.displayLarge
             )
 
             // Goal info row

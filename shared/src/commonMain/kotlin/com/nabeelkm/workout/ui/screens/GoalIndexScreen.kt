@@ -259,7 +259,7 @@ fun GoalCard(goal: Goal, onDelete: (Goal) -> Unit = {}, onEdit: (Goal) -> Unit =
                 Spacer(Modifier.weight(1F))
                 val status = goal.getStatus()
                 val labelColor = when(status) {
-                    GoalStatus.NEW -> Color.Blue
+                    GoalStatus.NEW -> AppColor.blue
                     GoalStatus.ACTIVE -> AppColor.success
                     GoalStatus.COMPLETED -> MaterialTheme.colorScheme.onSurfaceVariant
                 }
