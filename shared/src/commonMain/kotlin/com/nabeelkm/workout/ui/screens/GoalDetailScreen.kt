@@ -1,6 +1,7 @@
 package com.nabeelkm.workout.ui.screens
 
 import androidx.compose.foundation.BorderStroke
+import androidx.compose.foundation.clickable
 import androidx.compose.foundation.layout.Arrangement
 import androidx.compose.foundation.layout.Box
 import androidx.compose.foundation.layout.Column
@@ -103,6 +104,9 @@ fun GoalDetailScreen(
                 navigateToEditScreen = {
                     navigator.navigate(AppRoute.UpdateGoal(state.goalWithParameter.goal.id))
                 },
+                navigateToEditWorkoutScreen = { workout ->
+                    navigator.navigate(AppRoute.UpdateLogWorkout(workout.id))
+                }
             )
         }
     }
@@ -116,7 +120,8 @@ private fun GoalDetailContent(
     workouts: List<Workout> = listOf(),
     onAddWorkout: () -> Unit = {},
     onSwitchState: (GoalStatus) -> Unit = {},
-    navigateToEditScreen: () -> Unit = {}
+    navigateToEditScreen: () -> Unit = {},
+    navigateToEditWorkoutScreen: (Workout) -> Unit = {},
 ) {
     Scaffold(
         containerColor = MaterialTheme.colorScheme.background,
@@ -185,7 +190,13 @@ private fun GoalDetailContent(
                     verticalArrangement = Arrangement.spacedBy(16.dp)
                 ) {
                     workouts.forEach { workout ->
-                        WorkoutDetailCard(workout = workout, modifier = Modifier.fillMaxWidth())
+                        WorkoutDetailCard(
+                            workout = workout,
+                            modifier = Modifier.fillMaxWidth(),
+                            onClick = {
+                                navigateToEditWorkoutScreen(workout)
+                            }
+                        )
                     }
                 }
             }
@@ -327,10 +338,12 @@ fun GoalParameterList(parameters: List<Parameter> = listOf()) {
 }
 
 @Composable
-fun WorkoutDetailCard(modifier: Modifier = Modifier, workout: Workout) {
-    Card {
+fun WorkoutDetailCard(modifier: Modifier = Modifier, workout: Workout, onClick: () -> Unit) {
+    Card(
+        modifier = modifier.clickable { onClick() }
+    ) {
         Row(
-            modifier = modifier.padding(16.dp),
+            modifier = Modifier.padding(16.dp),
             horizontalArrangement = Arrangement.spacedBy(16.dp),
             verticalAlignment = Alignment.CenterVertically
         ) {

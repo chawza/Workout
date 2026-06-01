@@ -12,7 +12,7 @@ interface WorkoutDao  {
     suspend fun insert(workout: Workout): Long
 
     @Query("SELECT * FROM Workout WHERE id = :id")
-    fun getByID(id: Int): Workout?
+    fun getByID(id: Long): Workout?
 
     @Query("SELECT * FROM Workout ORDER BY time")
     fun getAll(): Flow<List<Workout>>

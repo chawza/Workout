@@ -88,6 +88,12 @@ fun App() {
                     navigator = appNavigator
                 )
             }
+            entry<AppRoute.UpdateLogWorkout> { route ->
+                WorkoutFormScreen(
+                    workoutId = route.workoutId,
+                    navigator = appNavigator
+                )
+            }
             entry<AppRoute.WorkoutDetail> { route ->
                 WorkoutDetailScreen(
                     workoutId = route.workoutId,

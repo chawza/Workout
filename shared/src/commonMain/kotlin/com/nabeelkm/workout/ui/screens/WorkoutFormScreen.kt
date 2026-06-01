@@ -72,7 +72,8 @@ import kotlin.time.Clock
 
 @Composable
 fun WorkoutFormScreen(
-    initialGoalId: Int?,
+    workoutId: Long? = null,
+    initialGoalId: Int? = null,
     viewModel: WorkoutFormViewModel = koinViewModel(),
     navigator: AppNavigator,
 ) {
@@ -82,7 +83,11 @@ fun WorkoutFormScreen(
         if (formState.value.time == null) {
             viewModel.onTimeUpdate(Clock.System.now().toEpochMilliseconds())
         }
-        if (initialGoalId != null) {
+
+        if (workoutId != null) {
+            viewModel.setExistingWorkoutById(workoutId)
+        }
+        else if (initialGoalId != null) {
             viewModel.setGoalById(initialGoalId)
         }
     }

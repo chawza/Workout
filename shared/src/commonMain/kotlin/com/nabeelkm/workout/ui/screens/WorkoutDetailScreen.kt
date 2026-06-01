@@ -44,6 +44,7 @@ import com.nabeelkm.workout.entity.ParameterType
 import com.nabeelkm.workout.entity.Workout
 import com.nabeelkm.workout.entity.WorkoutParameter
 import com.nabeelkm.workout.navigation.AppNavigator
+import com.nabeelkm.workout.navigation.AppRoute
 import com.nabeelkm.workout.theme.AppColor
 import com.nabeelkm.workout.theme.AppRadius
 import com.nabeelkm.workout.theme.AppSpace
@@ -51,13 +52,11 @@ import com.nabeelkm.workout.theme.AppText
 import com.nabeelkm.workout.theme.Theme
 import com.nabeelkm.workout.ui.components.Card
 import com.nabeelkm.workout.ui.components.PrimaryButton
-import com.nabeelkm.workout.utils.formatDate
 import com.nabeelkm.workout.utils.formatDateTime
 import org.jetbrains.compose.resources.painterResource
 import workout.shared.generated.resources.Res
 import workout.shared.generated.resources.workout_icon
 import kotlin.time.Clock
-import kotlin.time.Instant
 
 @Composable
 fun WorkoutDetailScreen(
@@ -72,6 +71,9 @@ fun WorkoutDetailScreen(
         parameterValues = emptyList(),
         onBack = { navigator.goBack() },
         onDelete = {},
+        onEdit = {
+            navigator.navigate(AppRoute.UpdateLogWorkout(workoutId))
+        }
     )
 }
 
@@ -82,8 +84,9 @@ private fun WorkoutDetailContent(
     goal: Goal?,
     parameters: List<Parameter>,
     parameterValues: List<WorkoutParameter>,
-    onBack: () -> Unit,
-    onDelete: () -> Unit,
+    onBack: () -> Unit = {},
+    onDelete: () -> Unit = {},
+    onEdit: () -> Unit = {}
 ) {
     Scaffold(
         topBar = {
@@ -100,6 +103,17 @@ private fun WorkoutDetailContent(
                         contentPadding = PaddingValues(12.dp, 8.dp)
                     ) {
                         Text("← Back", style = MaterialTheme.typography.bodyMedium)
+                    }
+                    Button(
+                        colors = ButtonDefaults.buttonColors().copy(
+                            containerColor = Color.Transparent,
+                            contentColor = MaterialTheme.colorScheme.onSurface
+                        ),
+                        onClick = onEdit,
+                        shape = RoundedCornerShape(10.dp),
+                        contentPadding = PaddingValues(18.dp, 10.dp)
+                    ) {
+                        Text("Edit")
                     }
                 },
                 colors = TopAppBarDefaults.topAppBarColors(

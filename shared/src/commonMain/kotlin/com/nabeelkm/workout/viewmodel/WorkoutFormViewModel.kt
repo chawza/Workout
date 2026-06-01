@@ -6,6 +6,8 @@ import com.nabeelkm.workout.entity.Goal
 import com.nabeelkm.workout.entity.Workout
 import com.nabeelkm.workout.repository.GoalRepository
 import com.nabeelkm.workout.repository.WorkoutRepository
+import kotlinx.coroutines.Dispatchers
+import kotlinx.coroutines.IO
 import kotlinx.coroutines.channels.Channel
 import kotlinx.coroutines.flow.MutableStateFlow
 import kotlinx.coroutines.flow.SharingStarted
@@ -14,6 +16,7 @@ import kotlinx.coroutines.flow.receiveAsFlow
 import kotlinx.coroutines.flow.stateIn
 import kotlinx.coroutines.flow.update
 import kotlinx.coroutines.launch
+import kotlinx.coroutines.withContext
 
 data class WorkoutFormState(
     val goal: Goal? = null,
@@ -21,6 +24,7 @@ data class WorkoutFormState(
     val duration: Long? = null,
     val notes: String? = "",
     val parameterValues: Map<Int, String> = emptyMap(),
+    val goalIsEditable: Boolean = true,
 )
 
 
@@ -45,6 +49,34 @@ class WorkoutFormViewModel(
         started = SharingStarted.WhileSubscribed(5000),
         initialValue = emptyList()
     )
+
+    private val existingWorkout = MutableStateFlow<Workout?>(null)
+
+    fun setExistingWorkoutById(id: Long) = viewModelScope.launch {
+        val fetchedWorkout = withContext(Dispatchers.IO) {
+            workoutRepository.getById(id)
+        } ?: return@launch
+
+        existingWorkout.update {
+            fetchedWorkout
+        }
+
+        val goal = withContext(Dispatchers.IO) {
+            goalRepository.getById(fetchedWorkout.goalId)
+        }
+
+        _formState.update {
+            WorkoutFormState(
+                goal = goal,
+                time =  fetchedWorkout.time,
+                duration = fetchedWorkout.time,
+                notes = fetchedWorkout.notes,
+                goalIsEditable = false
+            )
+        }
+
+        setGoalById(fetchedWorkout.goalId)
+    }
 
     fun setGoalById(goalId: Int) {
         viewModelScope.launch {
