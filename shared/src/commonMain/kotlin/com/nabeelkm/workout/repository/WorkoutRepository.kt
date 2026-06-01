@@ -12,7 +12,6 @@ class WorkoutRepository (
 ) {
     private val dao = database.workoutDao()
     private val goalDao = database.goalDao()
-    val selectableGoalForWorkoutFLow = goalDao.getAll(status = GoalStatus.ACTIVE.value)
 
     suspend fun insertOne(workout: Workout): Long {
         return dao.insert(workout)
@@ -20,5 +19,13 @@ class WorkoutRepository (
 
     fun getById(id: Int): Workout? {
         return dao.getByID(id)
+    }
+
+    fun recentWorkoutFlow(): Flow<List<Workout>> {
+        return dao.getAll()
+    }
+
+    fun getGoalWorkoutsFlow(id: Int): Flow<List<Workout>> {
+        return dao.getAllAsFlow(id)
     }
 }

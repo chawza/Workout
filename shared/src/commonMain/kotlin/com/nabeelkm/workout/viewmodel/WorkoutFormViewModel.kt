@@ -2,16 +2,16 @@ package com.nabeelkm.workout.viewmodel
 
 import androidx.lifecycle.ViewModel
 import androidx.lifecycle.viewModelScope
-import com.nabeelkm.workout.database.AppDatabase
 import com.nabeelkm.workout.entity.Goal
 import com.nabeelkm.workout.entity.Workout
 import com.nabeelkm.workout.repository.GoalRepository
 import com.nabeelkm.workout.repository.WorkoutRepository
 import kotlinx.coroutines.channels.Channel
 import kotlinx.coroutines.flow.MutableStateFlow
+import kotlinx.coroutines.flow.SharingStarted
 import kotlinx.coroutines.flow.asStateFlow
-import kotlinx.coroutines.flow.last
 import kotlinx.coroutines.flow.receiveAsFlow
+import kotlinx.coroutines.flow.stateIn
 import kotlinx.coroutines.flow.update
 import kotlinx.coroutines.launch
 
@@ -29,7 +29,6 @@ class WorkoutFormViewModel(
     val goalRepository: GoalRepository
 ): ViewModel() {
     sealed class UIEvent {
-        data object Idle: UIEvent()
         data class SuccessAdd(val workout: Workout): UIEvent()
         data class SuccessUpdate(val workout: Workout): UIEvent()
     }
@@ -41,7 +40,24 @@ class WorkoutFormViewModel(
     private val _formState  = MutableStateFlow(WorkoutFormState())
     val formStateFlow = _formState.asStateFlow()
 
-    val selectableGoalsFlow = goalRepository.activeGoals
+    val selectableGoalsFlow = goalRepository.activeGoals.stateIn(
+        viewModelScope,
+        started = SharingStarted.WhileSubscribed(5000),
+        initialValue = emptyList()
+    )
+
+    fun setGoalById(goalId: Int) {
+        viewModelScope.launch {
+            val goal = selectableGoalsFlow.value.find { it.id == goalId }
+            if (goal != null) {
+                _formState.update {
+                    _formState.value.copy(
+                        goal = goal
+                    )
+                }
+            }
+        }
+    }
 
     fun resetState() {
         _formState.update {
@@ -92,7 +108,7 @@ class WorkoutFormViewModel(
             return@launch
         }
 
-        if (!selectableGoalsFlow.last().contains(form.goal)) {
+        if (!selectableGoalsFlow.value.contains(form.goal)) {
             // TODO: show error
             return@launch
         }

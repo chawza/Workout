@@ -82,8 +82,9 @@ fun App() {
                     navigator = appNavigator
                 )
             }
-            entry<AppRoute.LogWorkout> {
+            entry<AppRoute.LogWorkout> { route ->
                 WorkoutFormScreen(
+                    initialGoalId = route.goalId,
                     navigator = appNavigator
                 )
             }

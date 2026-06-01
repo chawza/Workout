@@ -29,6 +29,7 @@ import androidx.compose.runtime.rememberCoroutineScope
 import androidx.compose.ui.Alignment
 import androidx.compose.ui.Modifier
 import androidx.compose.ui.graphics.Color
+import androidx.compose.ui.text.font.FontStyle
 import androidx.compose.ui.text.style.TextAlign
 import androidx.compose.ui.tooling.preview.Preview
 import androidx.compose.ui.unit.dp
@@ -44,6 +45,7 @@ import com.nabeelkm.workout.utils.formatDate
 import com.nabeelkm.workout.utils.formatDateTime
 import com.nabeelkm.workout.navigation.AppNavigator
 import com.nabeelkm.workout.navigation.AppRoute
+import com.nabeelkm.workout.theme.AppColor
 import com.nabeelkm.workout.theme.Theme
 import com.nabeelkm.workout.viewmodel.GoalDetailUIState
 import com.nabeelkm.workout.viewmodel.GoalDetailViewModel
@@ -62,6 +64,7 @@ fun GoalDetailScreen(
     navigator: AppNavigator,
 ) {
     val uiState = viewModel.uiState.collectAsStateWithLifecycle()
+    val workoutsState = viewModel.workoutsStateFLow.collectAsStateWithLifecycle()
     val scope = rememberCoroutineScope()
 
     LaunchedEffect(goalId) {
@@ -86,8 +89,12 @@ fun GoalDetailScreen(
             GoalDetailContent(
                 goal = state.goalWithParameter.goal,
                 parameters = state.goalWithParameter.parameters,
-                workouts = emptyList(),
-                onAddWorkout = { /* TODO */ },
+                workouts = workoutsState.value,
+                onAddWorkout = {
+                    navigator.navigate(
+                        AppRoute.LogWorkout(goalId=goalId)
+                    )
+                },
                 onSwitchState = { status ->
                     scope.launch {
                         viewModel.switchState(status)
@@ -348,7 +355,17 @@ fun WorkoutDetailCard(modifier: Modifier = Modifier, workout: Workout) {
                 Column(
                     verticalArrangement = Arrangement.spacedBy(4.dp)
                 ) {
-                    Text(workout.notes ?: "-", maxLines = 1)
+                    val hasNotes = workout.notes?.length?.let { it > 0 } ?: false
+                    Text(
+                        text = if (hasNotes) {
+                            workout.notes
+                        } else {
+                            "no notes"
+                        },
+                        maxLines = 1,
+                        fontStyle = if (!hasNotes) FontStyle.Italic else null,
+                        color = if (!hasNotes) AppColor.muted else AppColor.fg,
+                    )
                     Text(
                         text = "5.2km - 32min"
                     )

@@ -1,9 +1,13 @@
 package com.nabeelkm.workout.ui.screens
 
+import kotlinx.datetime.LocalDateTime
+import kotlinx.datetime.TimeZone
+import kotlinx.datetime.toInstant
 import kotlinx.datetime.toLocalDateTime
 import androidx.compose.foundation.BorderStroke
 import androidx.compose.foundation.background
 import androidx.compose.foundation.border
+import androidx.compose.foundation.clickable
 import androidx.compose.foundation.layout.Arrangement
 import androidx.compose.foundation.layout.Box
 import androidx.compose.foundation.layout.Column
@@ -14,6 +18,7 @@ import androidx.compose.foundation.layout.Spacer
 import androidx.compose.foundation.layout.fillMaxSize
 import androidx.compose.foundation.layout.fillMaxWidth
 import androidx.compose.foundation.layout.height
+import androidx.compose.foundation.layout.navigationBarsPadding
 import androidx.compose.foundation.layout.padding
 import androidx.compose.foundation.layout.size
 import androidx.compose.foundation.layout.width
@@ -38,13 +43,19 @@ import androidx.compose.ui.graphics.Color
 import androidx.compose.ui.text.font.FontWeight
 import androidx.compose.ui.text.input.KeyboardType
 import androidx.compose.foundation.text.KeyboardOptions
+import androidx.compose.runtime.LaunchedEffect
+import androidx.compose.runtime.mutableStateOf
+import androidx.compose.runtime.remember
 import androidx.compose.ui.tooling.preview.Preview
 import androidx.compose.ui.unit.dp
+import androidx.lifecycle.compose.collectAsStateWithLifecycle
 import com.nabeelkm.workout.entity.Goal
 import com.nabeelkm.workout.entity.GoalStatus
 import com.nabeelkm.workout.entity.Parameter
 import com.nabeelkm.workout.entity.ParameterType
 import com.nabeelkm.workout.navigation.AppNavigator
+import com.nabeelkm.workout.navigation.AppRoute
+import com.nabeelkm.workout.navigation.HomeRoute
 import com.nabeelkm.workout.theme.AppColor
 import com.nabeelkm.workout.theme.AppRadius
 import com.nabeelkm.workout.theme.AppSpace
@@ -61,16 +72,44 @@ import kotlin.time.Clock
 
 @Composable
 fun WorkoutFormScreen(
+    initialGoalId: Int?,
     viewModel: WorkoutFormViewModel = koinViewModel(),
     navigator: AppNavigator,
 ) {
     val formState = viewModel.formStateFlow.collectAsState()
 
+    LaunchedEffect(Unit) {
+        if (formState.value.time == null) {
+            viewModel.onTimeUpdate(Clock.System.now().toEpochMilliseconds())
+        }
+        if (initialGoalId != null) {
+            viewModel.setGoalById(initialGoalId)
+        }
+    }
+
+    LaunchedEffect(viewModel.uiChannelFlow) {
+        viewModel.uiChannelFlow.collect { effect ->
+            when(effect) {
+                is WorkoutFormViewModel.UIEvent.SuccessAdd -> {
+                    if (initialGoalId != null) {
+                        navigator.navigate(AppRoute.DetailGoal(effect.workout.goalId))
+                    } else {
+                        navigator.navigate(AppRoute.Home(HomeRoute.Home))
+                    }
+                }
+                else -> {}
+            }
+        }
+    }
+
+    val selectableGoals = viewModel.selectableGoalsFlow.collectAsStateWithLifecycle()
+
     WorkoutFormContent(
         formState = formState.value,
-        selectableGoals = emptyList(),
+        selectableGoals = selectableGoals.value,
         selectedGoalParameters = emptyList(),
         onGoalSelected = viewModel::onGoalUpdate,
+        onTimeChange = viewModel::onTimeUpdate,
         onDurationChange = { viewModel.onDuration(it.toLongOrNull()) },
         onNotesChange = { viewModel.onNotesUpdate(it) },
         onParameterValueChange = viewModel::onParameterValueUpdate,
@@ -85,12 +124,17 @@ private fun WorkoutFormContent(
     selectableGoals: List<Goal>,
     selectedGoalParameters: List<Parameter>,
     onGoalSelected: (Goal) -> Unit,
+    onTimeChange: (Long) -> Unit,
     onDurationChange: (String) -> Unit,
     onNotesChange: (String) -> Unit,
     onParameterValueChange: (Int, String) -> Unit,
     onSave: () -> Unit,
     onCancel: () -> Unit,
 ) {
+    val showDateModal = remember { mutableStateOf(false) }
+    val showTimeModal = remember { mutableStateOf(false) }
+    val pendingDateMillis = remember { mutableStateOf<Long?>(null) }
+
     Scaffold(
         topBar = {
             TopAppBar(
@@ -132,6 +176,7 @@ private fun WorkoutFormContent(
                         shape = RoundedCornerShape(0.dp)
                     )
                     .background(AppColor.bg)
+                    .navigationBarsPadding()
                     .padding(AppSpace.s4),
                 horizontalArrangement = Arrangement.spacedBy(AppSpace.s3)
             ) {
@@ -207,36 +252,82 @@ private fun WorkoutFormContent(
                     label = "Date",
                     modifier = Modifier.weight(1f)
                 ) {
-                    OutlinedTextField(
-                        modifier = Modifier.fillMaxWidth(),
-                        value = formState.time?.let {
-                            formatDateShort(it)
-                        } ?: "",
-                        onValueChange = {},
-                        readOnly = true,
-                        enabled = false,
-                        placeholder = { Text("Select date") },
-                        colors = disabledFieldColors(),
-                        shape = RoundedCornerShape(AppRadius.sm),
-                    )
+                    Box(
+                        modifier = Modifier
+                            .fillMaxWidth()
+                            .clickable { showDateModal.value = true }
+                    ) {
+                        OutlinedTextField(
+                            modifier = Modifier.fillMaxWidth(),
+                            value = formState.time?.let { formatDateShort(it) } ?: "",
+                            onValueChange = {},
+                            readOnly = true,
+                            enabled = false,
+                            placeholder = { Text("Select date") },
+                            colors = disabledFieldColors(),
+                            shape = RoundedCornerShape(AppRadius.sm),
+                        )
+                    }
                 }
                 FormField(
                     label = "Time",
                     modifier = Modifier.weight(1f)
                 ) {
-                    OutlinedTextField(
-                        modifier = Modifier.fillMaxWidth(),
-                        value = formState.time?.let {
-                            formatTimeShort(it)
-                        } ?: "",
-                        onValueChange = {},
-                        readOnly = true,
-                        enabled = false,
-                        placeholder = { Text("Select time") },
-                        colors = disabledFieldColors(),
-                        shape = RoundedCornerShape(AppRadius.sm),
-                    )
+                    Box(
+                        modifier = Modifier
+                            .fillMaxWidth()
+                            .clickable {
+                                if (formState.time != null) showTimeModal.value = true
+                                else showDateModal.value = true
+                            }
+                    ) {
+                        OutlinedTextField(
+                            modifier = Modifier.fillMaxWidth(),
+                            value = formState.time?.let { formatTimeShort(it) } ?: "",
+                            onValueChange = {},
+                            readOnly = true,
+                            enabled = false,
+                            placeholder = { Text("Select time") },
+                            colors = disabledFieldColors(),
+                            shape = RoundedCornerShape(AppRadius.sm),
+                        )
+                    }
                 }
+            }
+
+            // Date Modal
+            if (showDateModal.value) {
+                DatePickerModal(
+                    onDateSelected = { millis ->
+                        if (millis != null) {
+                            pendingDateMillis.value = millis
+                            showTimeModal.value = true
+                        }
+                    },
+                    onDismiss = { showDateModal.value = false }
+                )
+            }
+
+            // Time Modal
+            if (showTimeModal.value) {
+                val tz = TimeZone.currentSystemDefault()
+                val referenceMillis = formState.time ?: kotlin.time.Clock.System.now().toEpochMilliseconds()
+                val referenceLocal = kotlin.time.Instant.fromEpochMilliseconds(referenceMillis).toLocalDateTime(tz)
+                TimePickerModal(
+                    initialHour = referenceLocal.hour,
+                    initialMinute = referenceLocal.minute,
+                    onTimeSelected = { hour, minute ->
+                        val dateMillis = pendingDateMillis.value ?: formState.time
+                        if (dateMillis != null) {
+                            onTimeChange(combineDateAndTime(dateMillis, hour, minute))
+                        }
+                        pendingDateMillis.value = null
+                    },
+                    onDismiss = {
+                        pendingDateMillis.value = null
+                        showTimeModal.value = false
+                    }
+                )
             }
 
             // Duration
@@ -390,6 +481,14 @@ private fun disabledFieldColors() = OutlinedTextFieldDefaults.colors(
     disabledPlaceholderColor = AppColor.muted,
 )
 
+private fun combineDateAndTime(dateMidnightUtcMillis: Long, hour: Int, minute: Int): Long {
+    val tz = TimeZone.currentSystemDefault()
+    val utcDate = kotlin.time.Instant.fromEpochMilliseconds(dateMidnightUtcMillis)
+        .toLocalDateTime(TimeZone.UTC)
+    val localDateTime = LocalDateTime(utcDate.year, utcDate.monthNumber, utcDate.dayOfMonth, hour, minute, 0)
+    return localDateTime.toInstant(tz).toEpochMilliseconds()
+}
+
 private fun formatDateShort(epochMillis: Long): String {
     return com.nabeelkm.workout.utils.formatDate(epochMillis)
 }
@@ -421,6 +520,7 @@ private fun WorkoutFormPreview() {
                 Parameter(13, 1, "Heart Rate", ParameterType.INTEGER.value, "bpm"),
             ),
             onGoalSelected = {},
+            onTimeChange = {},
             onDurationChange = {},
             onNotesChange = {},
             onParameterValueChange = { _, _ -> },
@@ -439,6 +539,7 @@ private fun WorkoutFormEmptyPreview() {
             selectableGoals = emptyList(),
             selectedGoalParameters = emptyList(),
             onGoalSelected = {},
+            onTimeChange = {},
             onDurationChange = {},
             onNotesChange = {},
             onParameterValueChange = { _, _ -> },

@@ -29,6 +29,7 @@ import androidx.compose.material3.Text
 import androidx.compose.material3.TopAppBar
 import androidx.compose.material3.TopAppBarDefaults
 import androidx.compose.runtime.Composable
+import androidx.compose.runtime.collectAsState
 import androidx.compose.runtime.getValue
 import androidx.compose.runtime.mutableStateOf
 import androidx.compose.runtime.remember
@@ -43,11 +44,15 @@ import androidx.compose.ui.text.style.TextOverflow
 import androidx.compose.ui.tooling.preview.Preview
 import androidx.compose.ui.unit.dp
 import androidx.compose.ui.unit.sp
+import androidx.lifecycle.compose.collectAsStateWithLifecycle
+import com.nabeelkm.workout.database.AppDatabase
 import com.nabeelkm.workout.entity.Goal
 import com.nabeelkm.workout.entity.GoalStatus
 import com.nabeelkm.workout.entity.Workout
 import com.nabeelkm.workout.navigation.AppRoute
 import com.nabeelkm.workout.navigation.HomeNavigator
+import com.nabeelkm.workout.repository.GoalRepository
+import com.nabeelkm.workout.repository.WorkoutRepository
 import com.nabeelkm.workout.theme.AppColor
 import com.nabeelkm.workout.theme.AppRadius
 import com.nabeelkm.workout.theme.AppSpace
@@ -56,7 +61,11 @@ import com.nabeelkm.workout.theme.Theme
 import com.nabeelkm.workout.ui.components.Card
 import com.nabeelkm.workout.ui.components.PrimaryButton
 import com.nabeelkm.workout.utils.formatDate
+import com.nabeelkm.workout.viewmodel.WorkoutIndexViewModel
 import org.jetbrains.compose.resources.painterResource
+import org.koin.compose.getKoin
+import org.koin.compose.koinInject
+import org.koin.compose.viewmodel.koinViewModel
 import workout.shared.generated.resources.Res
 import workout.shared.generated.resources.workout_icon
 import kotlin.time.Clock
@@ -67,12 +76,20 @@ private enum class WorkoutView { LIST, CALENDAR }
 
 @Composable
 fun WorkoutIndexScreen(
+    viewModel: WorkoutIndexViewModel = koinViewModel(),
     navigator: HomeNavigator
 ) {
+    val workoutList = viewModel.recentWorkoutFlow.collectAsStateWithLifecycle(
+        initialValue = listOf(),
+    )
+
+    val goalRepository: GoalRepository = koinInject()
+    val allGoals = goalRepository.allGoalsFlow.collectAsStateWithLifecycle(initialValue = listOf())
+
     WorkoutIndexContent(
-        workouts = emptyList(),
-        goals = emptyList(),
-        onLogWorkout = { navigator.navigate(AppRoute.LogWorkout) },
+        workouts = workoutList.value,
+        goals = allGoals.value,
+        onLogWorkout = { navigator.navigate(AppRoute.LogWorkout()) },
         onOpenWorkout = { navigator.navigate(AppRoute.WorkoutDetail(it.id)) },
     )
 }

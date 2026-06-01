@@ -11,7 +11,7 @@ sealed class AppRoute {
     data object AddGoal: AppRoute()
     class UpdateGoal(val goalId: Int): AppRoute()
     class DetailGoal(val goalId: Int): AppRoute()
-    data object LogWorkout: AppRoute()
+    class LogWorkout(val goalId: Int? = null): AppRoute()
     class WorkoutDetail(val workoutId: Long): AppRoute()
 }
 
