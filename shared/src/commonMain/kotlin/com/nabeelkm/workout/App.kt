@@ -13,6 +13,10 @@ import com.nabeelkm.workout.navigation.AppNavigator
 import com.nabeelkm.workout.navigation.AppRoute
 import com.nabeelkm.workout.navigation.HomeNavigator
 import com.nabeelkm.workout.navigation.HomeRoute
+import com.nabeelkm.workout.navigation.crossfadeSpec
+import com.nabeelkm.workout.navigation.modalTransitionMetadata
+import com.nabeelkm.workout.navigation.slideBackSpec
+import com.nabeelkm.workout.navigation.slideForwardSpec
 import com.nabeelkm.workout.theme.Theme
 import com.nabeelkm.workout.ui.components.BottomNavigation
 import com.nabeelkm.workout.ui.screens.GoalDetailScreen
@@ -61,16 +65,22 @@ fun App() {
                         modifier = Modifier.padding(innerPadding).fillMaxSize(),
                         backStack = homeBackStack,
                         onBack = { homeNavigator.goBack() },
+                        transitionSpec = crossfadeSpec(),
+                        popTransitionSpec = crossfadeSpec(),
                         entryProvider = homeRoutes
                     )
                 }
             }
-            entry<AppRoute.AddGoal> {
+            entry<AppRoute.AddGoal>(
+                metadata = modalTransitionMetadata()
+            ) {
                 GoalFormScreen(
                     navigator = appNavigator
                 )
             }
-            entry<AppRoute.UpdateGoal> { route ->
+            entry<AppRoute.UpdateGoal>(
+                metadata = modalTransitionMetadata()
+            ) { route ->
                 GoalFormScreen(
                     goalId = route.goalId,
                     navigator = appNavigator
@@ -82,13 +92,17 @@ fun App() {
                     navigator = appNavigator
                 )
             }
-            entry<AppRoute.LogWorkout> { route ->
+            entry<AppRoute.LogWorkout>(
+                metadata = modalTransitionMetadata()
+            ) { route ->
                 WorkoutFormScreen(
                     initialGoalId = route.goalId,
                     navigator = appNavigator
                 )
             }
-            entry<AppRoute.UpdateLogWorkout> { route ->
+            entry<AppRoute.UpdateLogWorkout>(
+                metadata = modalTransitionMetadata()
+            ) { route ->
                 WorkoutFormScreen(
                     workoutId = route.workoutId,
                     navigator = appNavigator
@@ -107,6 +121,8 @@ fun App() {
             modifier = Modifier.fillMaxSize(),
             backStack = appBackStack,
             onBack = { appNavigator.goBack() },
+            transitionSpec = slideForwardSpec(),
+            popTransitionSpec = slideBackSpec(),
             entryProvider = routes
         )
     }
