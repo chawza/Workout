@@ -5,6 +5,7 @@ import androidx.lifecycle.viewModelScope
 import com.nabeelkm.workout.dao.GoalWithParameter
 import com.nabeelkm.workout.entity.GoalStatus
 import com.nabeelkm.workout.repository.GoalRepository
+import com.nabeelkm.workout.repository.WorkoutRepository
 import kotlinx.coroutines.flow.MutableStateFlow
 import kotlinx.coroutines.flow.SharingStarted
 import kotlinx.coroutines.flow.StateFlow
@@ -24,10 +25,22 @@ sealed class GoalDetailUIState {
 @OptIn(kotlinx.coroutines.ExperimentalCoroutinesApi::class)
 class GoalDetailViewModel(
     val repository: GoalRepository,
+    val workoutRepository: WorkoutRepository
 ): ViewModel() {
 
     private val _goalId = MutableStateFlow<Int?>(null)
     val goalId: StateFlow<Int?> = _goalId.asStateFlow()
+
+    val workoutsStateFLow = _goalId
+        .flatMapLatest { id ->
+            if (id == null) flowOf(emptyList())
+            else workoutRepository.getGoalWorkoutsFlow(id)
+        }
+        .stateIn(
+            scope = viewModelScope,
+            started = SharingStarted.WhileSubscribed(5000),
+            initialValue = emptyList()
+        )
 
     val uiState = _goalId
         .flatMapLatest { id ->

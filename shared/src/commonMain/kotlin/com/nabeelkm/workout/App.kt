@@ -1,14 +1,11 @@
 package com.nabeelkm.workout
 
-import androidx.compose.foundation.layout.Box
 import androidx.compose.foundation.layout.fillMaxSize
 import androidx.compose.foundation.layout.padding
 import androidx.compose.material3.Scaffold
-import androidx.compose.material3.Text
 import androidx.compose.runtime.Composable
 import androidx.compose.runtime.mutableStateListOf
 import androidx.compose.runtime.remember
-import androidx.compose.ui.Alignment
 import androidx.compose.ui.Modifier
 import androidx.navigation3.runtime.entryProvider
 import androidx.navigation3.ui.NavDisplay
@@ -22,6 +19,9 @@ import com.nabeelkm.workout.ui.screens.GoalDetailScreen
 import com.nabeelkm.workout.ui.screens.GoalFormScreen
 import com.nabeelkm.workout.ui.screens.GoalIndexScreen
 import com.nabeelkm.workout.ui.screens.SettingsScreen
+import com.nabeelkm.workout.ui.screens.WorkoutDetailScreen
+import com.nabeelkm.workout.ui.screens.WorkoutFormScreen
+import com.nabeelkm.workout.ui.screens.WorkoutIndexScreen
 
 @Composable
 fun App() {
@@ -47,9 +47,9 @@ fun App() {
                                 )
                             }
                             entry<HomeRoute.Home> {
-                                Box(contentAlignment = Alignment.Center) {
-                                    Text("Work In Progress")
-                                }
+                                WorkoutIndexScreen(
+                                    navigator = homeNavigator
+                                )
                             }
                             entry<HomeRoute.Settings> {
                                 SettingsScreen()
@@ -79,6 +79,24 @@ fun App() {
             entry<AppRoute.DetailGoal> { route ->
                 GoalDetailScreen(
                     goalId = route.goalId,
+                    navigator = appNavigator
+                )
+            }
+            entry<AppRoute.LogWorkout> { route ->
+                WorkoutFormScreen(
+                    initialGoalId = route.goalId,
+                    navigator = appNavigator
+                )
+            }
+            entry<AppRoute.UpdateLogWorkout> { route ->
+                WorkoutFormScreen(
+                    workoutId = route.workoutId,
+                    navigator = appNavigator
+                )
+            }
+            entry<AppRoute.WorkoutDetail> { route ->
+                WorkoutDetailScreen(
+                    workoutId = route.workoutId,
                     navigator = appNavigator
                 )
             }

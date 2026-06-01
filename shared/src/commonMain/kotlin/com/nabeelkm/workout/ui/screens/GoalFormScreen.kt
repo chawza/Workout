@@ -37,20 +37,19 @@ import androidx.compose.material3.Scaffold
 import androidx.compose.material3.Text
 import androidx.compose.material3.TextButton
 import androidx.compose.material3.TimePicker
+import androidx.compose.material3.TimePickerDefaults
 import androidx.compose.material3.TopAppBar
 import androidx.compose.material3.TopAppBarDefaults
 import androidx.compose.material3.rememberDatePickerState
 import androidx.compose.material3.rememberTimePickerState
 import androidx.compose.runtime.Composable
 import androidx.compose.runtime.LaunchedEffect
-import androidx.compose.runtime.collectAsState
 import androidx.compose.runtime.getValue
 import androidx.compose.runtime.mutableStateOf
 import androidx.compose.runtime.remember
 import androidx.compose.ui.Alignment
 import androidx.compose.ui.Modifier
 import androidx.compose.ui.graphics.Color
-import androidx.compose.ui.text.font.FontWeight
 import androidx.compose.ui.tooling.preview.Preview
 import androidx.compose.ui.unit.dp
 import androidx.lifecycle.compose.collectAsStateWithLifecycle
@@ -59,7 +58,6 @@ import com.nabeelkm.workout.entity.Parameter
 import com.nabeelkm.workout.entity.ParameterType
 import com.nabeelkm.workout.navigation.AppNavigator
 import com.nabeelkm.workout.theme.Theme
-import com.nabeelkm.workout.theme.ThemeColor
 import com.nabeelkm.workout.ui.components.PrimaryButton
 import com.nabeelkm.workout.viewmodel.FormState
 import com.nabeelkm.workout.viewmodel.GoalFormViewModel
@@ -401,6 +399,7 @@ private fun GoalFormContent(
 
             // Buttons
             Row(
+                modifier = Modifier.fillMaxWidth(),
                 horizontalArrangement = Arrangement.spacedBy(16.dp),
             ) {
                 Button(
@@ -461,7 +460,17 @@ fun DatePickerModal(
             containerColor = MaterialTheme.colorScheme.surface
         )
     ) {
-        DatePicker(state = datePickerState)
+        DatePicker(
+            state = datePickerState,
+            colors = DatePickerDefaults.colors(
+                selectedDayContainerColor = MaterialTheme.colorScheme.primary,
+                selectedDayContentColor = MaterialTheme.colorScheme.onPrimary,
+                todayDateBorderColor = MaterialTheme.colorScheme.primary,
+                todayContentColor = MaterialTheme.colorScheme.primary,
+                selectedYearContainerColor = MaterialTheme.colorScheme.primary,
+                selectedYearContentColor = MaterialTheme.colorScheme.onPrimary,
+            )
+        )
     }
 }
 
@@ -495,7 +504,18 @@ fun TimePickerModal(
         },
         containerColor = MaterialTheme.colorScheme.surface,
         text = {
-            TimePicker(state = timePickerState)
+            TimePicker(
+                state = timePickerState,
+                colors = TimePickerDefaults.colors(
+                    selectorColor = MaterialTheme.colorScheme.primary,
+                    clockDialSelectedContentColor = MaterialTheme.colorScheme.onPrimary,
+                    timeSelectorSelectedContainerColor = MaterialTheme.colorScheme.primary.copy(alpha = 0.12f),
+                    timeSelectorSelectedContentColor = MaterialTheme.colorScheme.primary,
+                    periodSelectorSelectedContainerColor = MaterialTheme.colorScheme.primary.copy(alpha = 0.12f),
+                    periodSelectorSelectedContentColor = MaterialTheme.colorScheme.primary,
+                    periodSelectorBorderColor = MaterialTheme.colorScheme.outline,
+                )
+            )
         }
     )
 }

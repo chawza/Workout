@@ -17,7 +17,6 @@ data class GoalWithParameter(
     @Embedded val goal: Goal,
     @Relation(parentColumn = "id", entityColumn = "goalId")
     val parameters: List<Parameter>
-
 )
 @Dao
 interface GoalDao {
@@ -29,6 +28,8 @@ interface GoalDao {
 
     @Query("SELECT * FROM Goal WHERE status = :status ORDER BY createdAt DESC")
     fun getAll(status: Int): Flow<List<Goal>>
+    @Query("SELECT * FROM Goal ORDER BY createdAt DESC")
+    fun getAll(): Flow<List<Goal>>
 
     @Query("SELECT * FROM Goal WHERE id = :id")
     suspend fun getById(id: Int): Goal?

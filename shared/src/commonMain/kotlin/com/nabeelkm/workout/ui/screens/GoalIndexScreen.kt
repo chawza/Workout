@@ -45,10 +45,8 @@ import com.nabeelkm.workout.entity.Goal
 import com.nabeelkm.workout.entity.GoalStatus
 import com.nabeelkm.workout.navigation.AppRoute
 import com.nabeelkm.workout.navigation.HomeNavigator
-import com.nabeelkm.workout.navigation.HomeRoute
 import com.nabeelkm.workout.theme.AppColor
 import com.nabeelkm.workout.theme.Theme
-import com.nabeelkm.workout.theme.ThemeColor
 import com.nabeelkm.workout.viewmodel.GoalIndexViewModel
 import kotlinx.datetime.LocalDateTime
 import kotlinx.datetime.TimeZone

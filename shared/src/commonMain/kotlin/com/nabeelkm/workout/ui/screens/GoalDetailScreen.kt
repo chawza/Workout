@@ -1,6 +1,7 @@
 package com.nabeelkm.workout.ui.screens
 
 import androidx.compose.foundation.BorderStroke
+import androidx.compose.foundation.clickable
 import androidx.compose.foundation.layout.Arrangement
 import androidx.compose.foundation.layout.Box
 import androidx.compose.foundation.layout.Column
@@ -29,6 +30,7 @@ import androidx.compose.runtime.rememberCoroutineScope
 import androidx.compose.ui.Alignment
 import androidx.compose.ui.Modifier
 import androidx.compose.ui.graphics.Color
+import androidx.compose.ui.text.font.FontStyle
 import androidx.compose.ui.text.style.TextAlign
 import androidx.compose.ui.tooling.preview.Preview
 import androidx.compose.ui.unit.dp
@@ -38,13 +40,14 @@ import com.nabeelkm.workout.entity.GoalStatus
 import com.nabeelkm.workout.entity.Parameter
 import com.nabeelkm.workout.entity.ParameterType
 import com.nabeelkm.workout.entity.Workout
-import com.nabeelkm.workout.theme.ThemeColor
 import com.nabeelkm.workout.ui.components.Card
 import com.nabeelkm.workout.ui.components.PrimaryButton
 import com.nabeelkm.workout.utils.formatDate
 import com.nabeelkm.workout.utils.formatDateTime
 import com.nabeelkm.workout.navigation.AppNavigator
 import com.nabeelkm.workout.navigation.AppRoute
+import com.nabeelkm.workout.theme.AppColor
+import com.nabeelkm.workout.theme.Theme
 import com.nabeelkm.workout.viewmodel.GoalDetailUIState
 import com.nabeelkm.workout.viewmodel.GoalDetailViewModel
 import kotlinx.coroutines.launch
@@ -62,6 +65,7 @@ fun GoalDetailScreen(
     navigator: AppNavigator,
 ) {
     val uiState = viewModel.uiState.collectAsStateWithLifecycle()
+    val workoutsState = viewModel.workoutsStateFLow.collectAsStateWithLifecycle()
     val scope = rememberCoroutineScope()
 
     LaunchedEffect(goalId) {
@@ -86,8 +90,12 @@ fun GoalDetailScreen(
             GoalDetailContent(
                 goal = state.goalWithParameter.goal,
                 parameters = state.goalWithParameter.parameters,
-                workouts = emptyList(),
-                onAddWorkout = { /* TODO */ },
+                workouts = workoutsState.value,
+                onAddWorkout = {
+                    navigator.navigate(
+                        AppRoute.LogWorkout(goalId=goalId)
+                    )
+                },
                 onSwitchState = { status ->
                     scope.launch {
                         viewModel.switchState(status)
@@ -96,6 +104,9 @@ fun GoalDetailScreen(
                 navigateToEditScreen = {
                     navigator.navigate(AppRoute.UpdateGoal(state.goalWithParameter.goal.id))
                 },
+                navigateToEditWorkoutScreen = { workout ->
+                    navigator.navigate(AppRoute.UpdateLogWorkout(workout.id))
+                }
             )
         }
     }
@@ -109,7 +120,8 @@ private fun GoalDetailContent(
     workouts: List<Workout> = listOf(),
     onAddWorkout: () -> Unit = {},
     onSwitchState: (GoalStatus) -> Unit = {},
-    navigateToEditScreen: () -> Unit = {}
+    navigateToEditScreen: () -> Unit = {},
+    navigateToEditWorkoutScreen: (Workout) -> Unit = {},
 ) {
     Scaffold(
         containerColor = MaterialTheme.colorScheme.background,
@@ -178,7 +190,13 @@ private fun GoalDetailContent(
                     verticalArrangement = Arrangement.spacedBy(16.dp)
                 ) {
                     workouts.forEach { workout ->
-                        WorkoutDetailCard(workout = workout, modifier = Modifier.fillMaxWidth())
+                        WorkoutDetailCard(
+                            workout = workout,
+                            modifier = Modifier.fillMaxWidth(),
+                            onClick = {
+                                navigateToEditWorkoutScreen(workout)
+                            }
+                        )
                     }
                 }
             }
@@ -320,10 +338,12 @@ fun GoalParameterList(parameters: List<Parameter> = listOf()) {
 }
 
 @Composable
-fun WorkoutDetailCard(modifier: Modifier = Modifier, workout: Workout) {
-    Card {
+fun WorkoutDetailCard(modifier: Modifier = Modifier, workout: Workout, onClick: () -> Unit) {
+    Card(
+        modifier = modifier.clickable { onClick() }
+    ) {
         Row(
-            modifier = modifier.padding(16.dp),
+            modifier = Modifier.padding(16.dp),
             horizontalArrangement = Arrangement.spacedBy(16.dp),
             verticalAlignment = Alignment.CenterVertically
         ) {
@@ -348,7 +368,17 @@ fun WorkoutDetailCard(modifier: Modifier = Modifier, workout: Workout) {
                 Column(
                     verticalArrangement = Arrangement.spacedBy(4.dp)
                 ) {
-                    Text(workout.notes ?: "-", maxLines = 1)
+                    val hasNotes = workout.notes?.length?.let { it > 0 } ?: false
+                    Text(
+                        text = if (hasNotes) {
+                            workout.notes
+                        } else {
+                            "no notes"
+                        },
+                        maxLines = 1,
+                        fontStyle = if (!hasNotes) FontStyle.Italic else null,
+                        color = if (!hasNotes) AppColor.muted else AppColor.fg,
+                    )
                     Text(
                         text = "5.2km - 32min"
                     )
@@ -362,53 +392,55 @@ fun WorkoutDetailCard(modifier: Modifier = Modifier, workout: Workout) {
 @Preview
 @Composable
 private fun GoalDetailPreview() {
-    GoalDetailContent(
-        goal = Goal(
-            1,
-            "Rucking",
-            status = GoalStatus.NEW.value,
-            createdAt = Instant.parse("2024-05-24T10:30:00Z").toEpochMilliseconds(),
-            startAt = Instant.parse("2024-05-24T10:30:00Z").toEpochMilliseconds(),
-            completedAt  = Instant.parse("2024-06-24T10:30:00Z").toEpochMilliseconds(),
-        ),
-        parameters = listOf(
-            Parameter(
-                id = 1,
-                goalId = 1,
-                name = "Distance",
-                unit = "KM",
-                type = ParameterType.FLOAT.value
+    Theme {
+        GoalDetailContent(
+            goal = Goal(
+                1,
+                "Rucking",
+                status = GoalStatus.NEW.value,
+                createdAt = Instant.parse("2024-05-24T10:30:00Z").toEpochMilliseconds(),
+                startAt = Instant.parse("2024-05-24T10:30:00Z").toEpochMilliseconds(),
+                completedAt  = Instant.parse("2024-06-24T10:30:00Z").toEpochMilliseconds(),
             ),
-            Parameter(
-                id = 2,
-                goalId = 1,
-                name = "Duration",
-                unit = "min",
-                type = ParameterType.INTEGER.value
+            parameters = listOf(
+                Parameter(
+                    id = 1,
+                    goalId = 1,
+                    name = "Distance",
+                    unit = "KM",
+                    type = ParameterType.FLOAT.value
+                ),
+                Parameter(
+                    id = 2,
+                    goalId = 1,
+                    name = "Duration",
+                    unit = "min",
+                    type = ParameterType.INTEGER.value
+                ),
+                Parameter(
+                    id = 3,
+                    goalId = 1,
+                    name = "pace",
+                    unit = "min/km",
+                    type = ParameterType.FLOAT.value
+                ),
             ),
-            Parameter(
-                id = 3,
-                goalId = 1,
-                name = "pace",
-                unit = "min/km",
-                type = ParameterType.FLOAT.value
-            ),
-        ),
-        workouts = listOf(
-            Workout(
-                id = 1,
-                goalId = 1,
-                notes = "Morning Run",
-                time = Instant.parse("2024-07-24T10:30:00Z").toEpochMilliseconds(),
-                duration = null
-            ),
-            Workout(
-                id = 2,
-                goalId = 1,
-                notes = "Evening Run",
-                time = Instant.parse("2024-08-24T10:30:00Z").toEpochMilliseconds(),
-                duration = null
+            workouts = listOf(
+                Workout(
+                    id = 1,
+                    goalId = 1,
+                    notes = "Morning Run",
+                    time = Instant.parse("2024-07-24T10:30:00Z").toEpochMilliseconds(),
+                    duration = null
+                ),
+                Workout(
+                    id = 2,
+                    goalId = 1,
+                    notes = "Evening Run",
+                    time = Instant.parse("2024-08-24T10:30:00Z").toEpochMilliseconds(),
+                    duration = null
+                )
             )
         )
-    )
+    }
 }

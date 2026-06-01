@@ -15,6 +15,8 @@ class GoalRepository(
     val newGoals = dao.getAll(status = GoalStatus.NEW.value)
     val completedGoals = dao.getAll(status = GoalStatus.COMPLETED.value)
 
+    val allGoalsFlow  = dao.getAll()
+
     suspend fun insertOne(goal: Goal) {
         dao.insert(goal)
     }
