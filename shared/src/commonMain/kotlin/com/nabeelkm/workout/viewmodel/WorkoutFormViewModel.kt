@@ -20,6 +20,7 @@ data class WorkoutFormState(
     val time: Long? = null,
     val duration: Long? = null,
     val notes: String? = "",
+    val parameterValues: Map<Int, String> = emptyMap(),
 )
 
 
@@ -75,6 +76,12 @@ class WorkoutFormViewModel(
             _formState.value.copy(
                 notes = notes
             )
+        }
+    }
+
+    fun onParameterValueUpdate(parameterId: Int, value: String) {
+        _formState.update {
+            it.copy(parameterValues = it.parameterValues + (parameterId to value))
         }
     }
 

@@ -3,9 +3,11 @@ package com.nabeelkm.workout.di
 import com.nabeelkm.workout.database.AppDatabase
 import com.nabeelkm.workout.database.getDatabaseBuilder
 import com.nabeelkm.workout.repository.GoalRepository
+import com.nabeelkm.workout.repository.WorkoutRepository
 import com.nabeelkm.workout.viewmodel.GoalDetailViewModel
 import com.nabeelkm.workout.viewmodel.GoalFormViewModel
 import com.nabeelkm.workout.viewmodel.GoalIndexViewModel
+import com.nabeelkm.workout.viewmodel.WorkoutFormViewModel
 import org.koin.core.module.Module
 import org.koin.core.module.dsl.singleOf
 import org.koin.core.module.dsl.viewModelOf
@@ -16,9 +18,11 @@ val sharedModule = module {
         getDatabaseBuilder().build()
     }
     singleOf(::GoalRepository)
+    singleOf(::WorkoutRepository)
     viewModelOf(::GoalIndexViewModel)
     viewModelOf(::GoalDetailViewModel)
     viewModelOf(::GoalFormViewModel)
+    viewModelOf(::WorkoutFormViewModel)
 }
 
 expect val platformModule: Module
