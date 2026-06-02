@@ -6,6 +6,9 @@ import com.nabeelkm.workout.entity.Goal
 import com.nabeelkm.workout.entity.GoalStatus
 import com.nabeelkm.workout.entity.Parameter
 import com.nabeelkm.workout.repository.GoalRepository
+import com.nabeelkm.workout.ui.components.DEFAULT_GOAL_COLOR
+import com.nabeelkm.workout.ui.components.DEFAULT_GOAL_ICON
+import com.nabeelkm.workout.ui.components.guessIconColor
 import kotlinx.coroutines.Dispatchers
 import kotlinx.coroutines.IO
 import kotlinx.coroutines.flow.MutableStateFlow
@@ -29,7 +32,9 @@ data class FormState(
     val notes: String = "",
     val parameters: List<Parameter> = listOf(),
     val startAtDisplay: String = "",
-    val completedAtDisplay: String = ""
+    val completedAtDisplay: String = "",
+    val iconId: String = DEFAULT_GOAL_ICON,
+    val colorHex: String = DEFAULT_GOAL_COLOR,
 )
 
 class GoalFormViewModel(
@@ -41,6 +46,13 @@ class GoalFormViewModel(
     private val _existingGoal = MutableStateFlow<Goal?>(null)
     val existingGoal = _existingGoal.asStateFlow()
 
+    /** Icons the user has enabled in Settings → Workout Icons. */
+    val enabledIcons = IconPreferences.enabledIcons
+
+    // Once the user opens the picker or types a name we stop auto-guessing
+    // the icon/colour from the goal name.
+    private var manualPick = false
+
     fun loadGoal(id: Int) {
         _goalId.update { id }
         loadExistingGoal()
@@ -49,6 +61,7 @@ class GoalFormViewModel(
     fun resetStates() {
         _goalId.update { null }
         _existingGoal.update { null }
+        manualPick = false
         _formState.update {
             FormState()
         }
@@ -62,6 +75,11 @@ class GoalFormViewModel(
             }
             if (goal != null) {
                 _existingGoal.value = goal
+                // The Goal entity doesn't persist icon/colour yet, so derive a
+                // sensible default from the name and treat it as a manual pick
+                // (don't auto-overwrite while editing).
+                manualPick = true
+                val guess = guessIconColor(goal.name)
                 _formState.update { state ->
                     state.copy(
                         goalName = goal.name,
@@ -69,6 +87,8 @@ class GoalFormViewModel(
                         completedAt = goal.completedAt,
                         startAtDisplay = goal.startAt?.let { formatDateTime(it) } ?: "",
                         completedAtDisplay = goal.completedAt?.let { formatDateTime(it) } ?: "",
+                        iconId = guess.icon,
+                        colorHex = guess.color,
                     )
                 }
             }
@@ -112,10 +132,30 @@ class GoalFormViewModel(
 
     fun onNameChanges(name: String) {
         _formState.update { state ->
-            state.copy(
-                goalName = name
-            )
+            // Auto-guess the icon/colour from the name while creating a new
+            // goal, until the user manually picks one.
+            if (!manualPick && _goalId.value == null && name.isNotBlank()) {
+                val guess = guessIconColor(name)
+                state.copy(goalName = name, iconId = guess.icon, colorHex = guess.color)
+            } else {
+                state.copy(goalName = name)
+            }
         }
+    }
+
+    /** Mark that the user has taken control of the icon/colour. */
+    fun onIconPickerOpened() {
+        manualPick = true
+    }
+
+    fun onIconChanges(iconId: String) {
+        manualPick = true
+        _formState.update { it.copy(iconId = iconId) }
+    }
+
+    fun onColorChanges(colorHex: String) {
+        manualPick = true
+        _formState.update { it.copy(colorHex = colorHex) }
     }
 
     fun onStartDateChanges(dateMillis: Long?) {

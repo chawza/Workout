@@ -7,15 +7,20 @@ import androidx.compose.foundation.clickable
 import androidx.compose.foundation.layout.Arrangement
 import androidx.compose.foundation.layout.Box
 import androidx.compose.foundation.layout.Column
+import androidx.compose.foundation.layout.ExperimentalLayoutApi
+import androidx.compose.foundation.layout.FlowRow
 import androidx.compose.foundation.layout.PaddingValues
 import androidx.compose.foundation.layout.Row
+import androidx.compose.foundation.layout.Spacer
 import androidx.compose.foundation.layout.fillMaxSize
 import androidx.compose.foundation.layout.fillMaxWidth
 import androidx.compose.foundation.layout.padding
+import androidx.compose.foundation.layout.size
 import androidx.compose.foundation.layout.width
 import androidx.compose.foundation.lazy.LazyRow
 import androidx.compose.foundation.rememberScrollState
 import androidx.compose.foundation.verticalScroll
+import androidx.compose.foundation.shape.CircleShape
 import androidx.compose.foundation.shape.RoundedCornerShape
 import androidx.compose.material3.AlertDialog
 import androidx.compose.material3.Button
@@ -28,8 +33,10 @@ import androidx.compose.material3.DatePickerDefaults
 import androidx.compose.material3.DropdownMenu
 import androidx.compose.material3.DropdownMenuItem
 import androidx.compose.material3.ExperimentalMaterial3Api
+import androidx.compose.material3.Icon
 import androidx.compose.material3.IconButton
 import androidx.compose.material3.MaterialTheme
+import androidx.compose.material3.ModalBottomSheet
 import androidx.compose.material3.OutlinedButton
 import androidx.compose.material3.OutlinedTextField
 import androidx.compose.material3.OutlinedTextFieldDefaults
@@ -41,6 +48,7 @@ import androidx.compose.material3.TimePickerDefaults
 import androidx.compose.material3.TopAppBar
 import androidx.compose.material3.TopAppBarDefaults
 import androidx.compose.material3.rememberDatePickerState
+import androidx.compose.material3.rememberModalBottomSheetState
 import androidx.compose.material3.rememberTimePickerState
 import androidx.compose.runtime.Composable
 import androidx.compose.runtime.LaunchedEffect
@@ -49,6 +57,7 @@ import androidx.compose.runtime.mutableStateOf
 import androidx.compose.runtime.remember
 import androidx.compose.ui.Alignment
 import androidx.compose.ui.Modifier
+import androidx.compose.ui.draw.clip
 import androidx.compose.ui.graphics.Color
 import androidx.compose.ui.tooling.preview.Preview
 import androidx.compose.ui.unit.dp
@@ -58,7 +67,12 @@ import com.nabeelkm.workout.entity.Parameter
 import com.nabeelkm.workout.entity.ParameterType
 import com.nabeelkm.workout.navigation.AppNavigator
 import com.nabeelkm.workout.theme.Theme
+import com.nabeelkm.workout.ui.components.GOAL_COLORS
+import com.nabeelkm.workout.ui.components.GOAL_ICONS
 import com.nabeelkm.workout.ui.components.PrimaryButton
+import com.nabeelkm.workout.ui.components.WorkoutIcons
+import com.nabeelkm.workout.ui.components.goalIconVector
+import com.nabeelkm.workout.ui.components.hexToColor
 import com.nabeelkm.workout.viewmodel.FormState
 import com.nabeelkm.workout.viewmodel.GoalFormViewModel
 import kotlinx.datetime.TimeZone
@@ -75,6 +89,7 @@ fun GoalFormScreen(
 ) {
     val existingGoal by viewModel.existingGoal.collectAsStateWithLifecycle()
     val formState by viewModel.formState.collectAsStateWithLifecycle()
+    val enabledIcons by viewModel.enabledIcons.collectAsStateWithLifecycle()
 
     LaunchedEffect(goalId) {
         if (goalId != null) {
@@ -87,6 +102,7 @@ fun GoalFormScreen(
     GoalFormContent(
         existing = existingGoal,
         formState = formState,
+        enabledIcons = enabledIcons,
         onAdd = {
             viewModel.addGoal()
             navigator.goBack()
@@ -101,7 +117,10 @@ fun GoalFormScreen(
         onStartTimeChange = viewModel::onStartTimeChanges,
         onCompletedDateChange = viewModel::onCompletedDateChanges,
         onCompletedTimeChange = viewModel::onCompletedTimeChanges,
-        onNotesChange = viewModel::onNotesChanges
+        onNotesChange = viewModel::onNotesChanges,
+        onIconPickerOpened = viewModel::onIconPickerOpened,
+        onIconChange = viewModel::onIconChanges,
+        onColorChange = viewModel::onColorChanges,
     )
 }
 
@@ -109,6 +128,7 @@ fun GoalFormScreen(
 private fun GoalFormContent(
     existing: Goal? = null,
     formState: FormState,
+    enabledIcons: Set<String> = GOAL_ICONS.map { it.id }.toSet(),
     onAdd: () -> Unit = {},
     onEdit: () -> Unit = {},
     onCancel: () -> Unit = {},
@@ -117,8 +137,12 @@ private fun GoalFormContent(
     onStartTimeChange: (Int, Int) -> Unit = { _, _ -> },
     onCompletedDateChange: (Long?) -> Unit = {},
     onCompletedTimeChange: (Int, Int) -> Unit = { _, _ -> },
-    onNotesChange: (String) -> Unit = {}
+    onNotesChange: (String) -> Unit = {},
+    onIconPickerOpened: () -> Unit = {},
+    onIconChange: (String) -> Unit = {},
+    onColorChange: (String) -> Unit = {},
 ) {
+    val showPicker = remember { mutableStateOf(false) }
     Scaffold(
         topBar = {
             TopAppBar(
@@ -159,7 +183,7 @@ private fun GoalFormContent(
             val showCompletedDateModal = remember { mutableStateOf(false) }
             val showCompletedTimeModal = remember { mutableStateOf(false) }
 
-            // Goal Name
+            // Goal Name + icon/colour picker trigger
             Column(
                 modifier = Modifier.fillMaxWidth(),
                 verticalArrangement = Arrangement.spacedBy(8.dp)
@@ -168,18 +192,44 @@ private fun GoalFormContent(
                     "Goal Name",
                     style = MaterialTheme.typography.bodySmall
                 )
-                OutlinedTextField(
+                Row(
                     modifier = Modifier.fillMaxWidth(),
-                    value = formState.goalName,
-                    onValueChange = onNameChange,
-                    colors = OutlinedTextFieldDefaults.colors(
-                        focusedBorderColor = MaterialTheme.colorScheme.primary,
-                        unfocusedBorderColor = MaterialTheme.colorScheme.outline
-                    ),
-                    placeholder = {
-                        Text("e.g. Run a half marathon")
+                    horizontalArrangement = Arrangement.spacedBy(8.dp),
+                    verticalAlignment = Alignment.CenterVertically,
+                ) {
+                    val goalColor = hexToColor(formState.colorHex)
+                    Box(
+                        modifier = Modifier
+                            .size(width = 48.dp, height = 56.dp)
+                            .clip(RoundedCornerShape(10.dp))
+                            .background(goalColor.copy(alpha = 0.14f))
+                            .border(1.dp, MaterialTheme.colorScheme.outline, RoundedCornerShape(10.dp))
+                            .clickable {
+                                onIconPickerOpened()
+                                showPicker.value = true
+                            },
+                        contentAlignment = Alignment.Center,
+                    ) {
+                        Icon(
+                            imageVector = goalIconVector(formState.iconId),
+                            contentDescription = "Choose icon and colour",
+                            tint = goalColor,
+                            modifier = Modifier.size(22.dp),
+                        )
                     }
-                )
+                    OutlinedTextField(
+                        modifier = Modifier.weight(1f),
+                        value = formState.goalName,
+                        onValueChange = onNameChange,
+                        colors = OutlinedTextFieldDefaults.colors(
+                            focusedBorderColor = MaterialTheme.colorScheme.primary,
+                            unfocusedBorderColor = MaterialTheme.colorScheme.outline
+                        ),
+                        placeholder = {
+                            Text("e.g. Run a half marathon")
+                        }
+                    )
+                }
             }
 
             // Parameters Card
@@ -430,7 +480,144 @@ private fun GoalFormContent(
                 }
             }
         }
+
+        if (showPicker.value) {
+            IconColorPicker(
+                selectedIcon = formState.iconId,
+                selectedColor = formState.colorHex,
+                enabledIcons = enabledIcons,
+                onIconChange = onIconChange,
+                onColorChange = onColorChange,
+                onDismiss = { showPicker.value = false },
+            )
+        }
     }
+}
+
+@OptIn(ExperimentalMaterial3Api::class, ExperimentalLayoutApi::class)
+@Composable
+private fun IconColorPicker(
+    selectedIcon: String,
+    selectedColor: String,
+    enabledIcons: Set<String>,
+    onIconChange: (String) -> Unit,
+    onColorChange: (String) -> Unit,
+    onDismiss: () -> Unit,
+) {
+    val sheetState = rememberModalBottomSheetState()
+    ModalBottomSheet(
+        onDismissRequest = onDismiss,
+        sheetState = sheetState,
+        containerColor = MaterialTheme.colorScheme.surface,
+    ) {
+        val selected = hexToColor(selectedColor)
+        Column(
+            modifier = Modifier.fillMaxWidth().padding(horizontal = 16.dp).padding(bottom = 24.dp),
+            verticalArrangement = Arrangement.spacedBy(16.dp),
+        ) {
+            // Header
+            Row(
+                modifier = Modifier.fillMaxWidth(),
+                verticalAlignment = Alignment.CenterVertically,
+                horizontalArrangement = Arrangement.SpaceBetween,
+            ) {
+                Text("Icon & Colour", style = MaterialTheme.typography.titleMedium)
+                IconButton(onClick = onDismiss) {
+                    Icon(
+                        imageVector = WorkoutIcons.Close,
+                        contentDescription = "Close",
+                        tint = MaterialTheme.colorScheme.onSurface,
+                        modifier = Modifier.size(20.dp),
+                    )
+                }
+            }
+
+            // Icon grid
+            PickerSectionLabel("Icon")
+            val icons = GOAL_ICONS.filter { it.id in enabledIcons }
+            Column(verticalArrangement = Arrangement.spacedBy(8.dp)) {
+                icons.chunked(4).forEach { rowIcons ->
+                    Row(horizontalArrangement = Arrangement.spacedBy(8.dp)) {
+                        rowIcons.forEach { def ->
+                            val on = def.id == selectedIcon
+                            Column(
+                                modifier = Modifier
+                                    .weight(1f)
+                                    .clip(RoundedCornerShape(10.dp))
+                                    .background(
+                                        if (on) selected.copy(alpha = 0.12f)
+                                        else MaterialTheme.colorScheme.surface
+                                    )
+                                    .border(
+                                        width = 1.5.dp,
+                                        color = if (on) selected else MaterialTheme.colorScheme.outline,
+                                        shape = RoundedCornerShape(10.dp),
+                                    )
+                                    .clickable { onIconChange(def.id) }
+                                    .padding(vertical = 12.dp, horizontal = 8.dp),
+                                horizontalAlignment = Alignment.CenterHorizontally,
+                                verticalArrangement = Arrangement.spacedBy(4.dp),
+                            ) {
+                                Icon(
+                                    imageVector = def.image,
+                                    contentDescription = def.displayName,
+                                    tint = if (on) selected else MaterialTheme.colorScheme.onSurfaceVariant,
+                                    modifier = Modifier.size(22.dp),
+                                )
+                                Text(
+                                    text = def.displayName,
+                                    style = MaterialTheme.typography.labelSmall,
+                                    color = if (on) selected else MaterialTheme.colorScheme.onSurfaceVariant,
+                                )
+                            }
+                        }
+                        repeat(4 - rowIcons.size) { Spacer(Modifier.weight(1f)) }
+                    }
+                }
+            }
+
+            // Colour swatches
+            PickerSectionLabel("Colour")
+            FlowRow(
+                modifier = Modifier.fillMaxWidth(),
+                horizontalArrangement = Arrangement.spacedBy(8.dp),
+                verticalArrangement = Arrangement.spacedBy(8.dp),
+            ) {
+                GOAL_COLORS.forEach { c ->
+                    val on = c.hex.equals(selectedColor, ignoreCase = true)
+                    Box(
+                        modifier = Modifier
+                            .size(38.dp)
+                            .clip(CircleShape)
+                            .then(
+                                if (on) Modifier.border(2.dp, MaterialTheme.colorScheme.onSurface, CircleShape)
+                                else Modifier
+                            )
+                            .padding(if (on) 4.dp else 0.dp)
+                            .clip(CircleShape)
+                            .background(hexToColor(c.hex))
+                            .clickable { onColorChange(c.hex) },
+                    )
+                }
+            }
+
+            PrimaryButton(
+                modifier = Modifier.fillMaxWidth(),
+                onClick = onDismiss,
+            ) {
+                Text("Done")
+            }
+        }
+    }
+}
+
+@Composable
+private fun PickerSectionLabel(text: String) {
+    Text(
+        text = text.uppercase(),
+        style = MaterialTheme.typography.labelSmall,
+        color = MaterialTheme.colorScheme.onSurfaceVariant,
+    )
 }
 
 @OptIn(ExperimentalMaterial3Api::class)
