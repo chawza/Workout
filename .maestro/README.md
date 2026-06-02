@@ -44,8 +44,15 @@ scripts via `APP_ID`).
 | `smoke_launch.yaml` | smoke | App launches; Home/Goals/Settings tabs open |
 | `goal_create.yaml` | smoke, goals | Create a goal; it appears in the list |
 | `goal_delete.yaml` | regression, goals | Create then delete a goal |
+| `goal_edit.yaml` | regression, goals | Edit a goal's name |
+| `goal_status.yaml` | regression, goals | Promote a goal New → Active |
+| `workout_log.yaml` | smoke, workouts | Log a workout against an active goal |
 | `workout_nav.yaml` | regression, workouts | Toggle List/Calendar on Home |
 | `settings_toggle.yaml` | regression, settings | Toggle Dark Mode; open Workout Icons |
+
+Shared steps in [`subflows/`](subflows): `launch_app` (clean cold start),
+`go_to_goals` (open the Goals tab), and `create_goal` (create a named goal —
+callers pass the name via `runFlow: { file: ..., env: { GOAL_NAME: "..." } }`).
 
 ## Editing flows (for QA)
 

@@ -1,0 +1,34 @@
+# Create a goal, edit its name via the per-card Edit action, and assert the
+# rename is reflected in the Goals list.
+appId: ${APP_ID}
+tags:
+  - regression
+  - goals
+---
+- runFlow: ../subflows/launch_app.yaml
+- runFlow:
+    file: ../subflows/create_goal.yaml
+    env:
+      GOAL_NAME: "Old Name"
+
+# Open the edit form. With a single card the "Edit" action is unambiguous.
+- tapOn: "Edit"
+- assertVisible: "Update Goal"
+
+# In edit mode the name field is pre-filled (no placeholder shown), so tap the
+# existing value to focus it, clear it, then type the new name.
+- tapOn: "Old Name"
+- eraseText: 20
+- inputText: "New Name"
+- hideKeyboard
+
+# In edit mode the save button reads "Update".
+- scrollUntilVisible:
+    element:
+      text: "Update"
+    direction: DOWN
+- tapOn: "Update"
+
+# Back on the Goals list, the new name is shown and the old one is gone.
+- assertVisible: "New Name"
+- assertNotVisible: "Old Name"

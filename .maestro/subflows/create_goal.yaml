@@ -1,0 +1,22 @@
+# Reusable: create a goal named ${GOAL_NAME} and confirm it lands in the Goals list.
+# Callers pass the name with:  runFlow: { file: ../subflows/create_goal.yaml, env: { GOAL_NAME: "..." } }
+appId: ${APP_ID}
+---
+- runFlow: ../subflows/go_to_goals.yaml
+
+- tapOn: "+ New Goal"
+- assertVisible: "New Goal"
+
+# Goal name field is identified by its placeholder text.
+- tapOn: "e.g. Run a half marathon"
+- inputText: ${GOAL_NAME}
+- hideKeyboard
+
+# Save Goal sits at the bottom of a scrollable form — scroll it into view first.
+- scrollUntilVisible:
+    element:
+      text: "Save Goal"
+    direction: DOWN
+- tapOn: "Save Goal"
+
+- assertVisible: ${GOAL_NAME}

@@ -1,0 +1,27 @@
+# Create a goal (defaults to New), promote it to Active from the detail screen,
+# and assert it moves from the New to the Active section on the Goals list.
+appId: ${APP_ID}
+tags:
+  - regression
+  - goals
+---
+- runFlow: ../subflows/launch_app.yaml
+- runFlow:
+    file: ../subflows/create_goal.yaml
+    env:
+      GOAL_NAME: "Status Goal"
+
+# A freshly created goal sits under the "New" section.
+- assertVisible: "New"
+
+# Open detail and flip the status to Active via the segmented button.
+- tapOn: "Status Goal"
+- assertVisible: "TRACKED PARAMETERS"
+- tapOn: "Active"
+
+# Back-navigation returns to the Goals list root.
+- back
+
+# The goal now appears under the "Active" section.
+- assertVisible: "Active"
+- assertVisible: "Status Goal"

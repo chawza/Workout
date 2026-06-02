@@ -1,0 +1,46 @@
+# Core journey: create a goal, promote it to Active, log a workout against it,
+# and assert the workout appears under the goal's Recent Workout list.
+# Workouts can only be logged against ACTIVE goals, so the goal is promoted first.
+appId: ${APP_ID}
+tags:
+  - smoke
+  - workouts
+---
+- runFlow: ../subflows/launch_app.yaml
+- runFlow:
+    file: ../subflows/create_goal.yaml
+    env:
+      GOAL_NAME: "Marathon Prep"
+
+# Open the goal's detail screen.
+- tapOn: "Marathon Prep"
+- assertVisible: "TRACKED PARAMETERS"
+
+# Promote to Active (segmented button) so it becomes selectable when logging.
+- tapOn: "Active"
+
+# Log a workout from the goal; the goal is pre-selected as a pill.
+- tapOn: "+ Add Workout"
+- assertVisible: "Log Workout"
+- assertVisible: "Marathon Prep"
+
+# Date/Time auto-fill to "now" on open, so only Duration + Notes are needed.
+# Duration field is identified by its placeholder "30".
+- tapOn: "30"
+- inputText: "45"
+- hideKeyboard
+
+# Notes field is identified by its placeholder "How did it feel?".
+- tapOn: "How did it feel?"
+- inputText: "Felt great"
+- hideKeyboard
+
+# Save Workout sits in the bottom bar of a scrollable form.
+- scrollUntilVisible:
+    element:
+      text: "Save Workout"
+    direction: DOWN
+- tapOn: "Save Workout"
+
+# On save we return to the goal detail; the workout shows under Recent Workout.
+- assertVisible: "Felt great"
