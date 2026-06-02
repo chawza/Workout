@@ -22,6 +22,7 @@ import com.nabeelkm.workout.ui.components.BottomNavigation
 import com.nabeelkm.workout.ui.screens.GoalDetailScreen
 import com.nabeelkm.workout.ui.screens.GoalFormScreen
 import com.nabeelkm.workout.ui.screens.GoalIndexScreen
+import com.nabeelkm.workout.ui.screens.IconManagementScreen
 import com.nabeelkm.workout.ui.screens.SettingsScreen
 import com.nabeelkm.workout.ui.screens.WorkoutDetailScreen
 import com.nabeelkm.workout.ui.screens.WorkoutFormScreen
@@ -56,7 +57,7 @@ fun App() {
                                 )
                             }
                             entry<HomeRoute.Settings> {
-                                SettingsScreen()
+                                SettingsScreen(navigator = homeNavigator)
                             }
                         }
                     }
@@ -111,6 +112,11 @@ fun App() {
             entry<AppRoute.WorkoutDetail> { route ->
                 WorkoutDetailScreen(
                     workoutId = route.workoutId,
+                    navigator = appNavigator
+                )
+            }
+            entry<AppRoute.WorkoutIcons> {
+                IconManagementScreen(
                     navigator = appNavigator
                 )
             }

@@ -1,16 +1,19 @@
 package com.nabeelkm.workout.ui.screens
 
 import androidx.compose.foundation.BorderStroke
+import androidx.compose.foundation.clickable
 import androidx.compose.foundation.layout.Arrangement
 import androidx.compose.foundation.layout.Column
 import androidx.compose.foundation.layout.PaddingValues
 import androidx.compose.foundation.layout.Row
 import androidx.compose.foundation.layout.fillMaxWidth
 import androidx.compose.foundation.layout.padding
+import androidx.compose.foundation.layout.size
 import androidx.compose.foundation.shape.RoundedCornerShape
 import androidx.compose.material3.Button
 import androidx.compose.material3.ButtonDefaults
 import androidx.compose.material3.HorizontalDivider
+import androidx.compose.material3.Icon
 import androidx.compose.material3.MaterialTheme
 import androidx.compose.material3.Scaffold
 import androidx.compose.material3.SegmentedButton
@@ -30,17 +33,24 @@ import androidx.compose.ui.graphics.Color
 import androidx.compose.ui.tooling.preview.Preview
 import androidx.compose.ui.unit.dp
 import androidx.compose.ui.unit.sp
+import com.nabeelkm.workout.navigation.AppRoute
+import com.nabeelkm.workout.navigation.HomeNavigator
 import com.nabeelkm.workout.theme.Theme
 import com.nabeelkm.workout.theme.ThemeColor
 import com.nabeelkm.workout.ui.components.Card
+import com.nabeelkm.workout.ui.components.WorkoutIcons
 
 @Composable
-fun SettingsScreen() {
-    SettingsScreenContent()
+fun SettingsScreen(navigator: HomeNavigator) {
+    SettingsScreenContent(
+        onManageIcons = { navigator.navigate(AppRoute.WorkoutIcons) },
+    )
 }
 
 @Composable
-private fun SettingsScreenContent() {
+private fun SettingsScreenContent(
+    onManageIcons: () -> Unit = {},
+) {
     Scaffold(
         topBar = {
             TopAppBar(
@@ -120,6 +130,34 @@ private fun SettingsScreenContent() {
                                 ),
                                 icon = {},
                                 contentPadding = PaddingValues(0.dp)
+                            )
+                        }
+                    }
+                )
+            }
+
+            SectionHeader("Customization".uppercase())
+            Card {
+                ConfigRow(
+                    modifier = Modifier.fillMaxWidth().clickable(onClick = onManageIcons),
+                    title = "Workout Icons",
+                    description = "Choose which icons appear when creating goals",
+                    actions = {
+                        Button(
+                            onClick = onManageIcons,
+                            shape = RoundedCornerShape(10.dp),
+                            contentPadding = PaddingValues(12.dp, 10.dp),
+                            colors = ButtonDefaults.buttonColors(
+                                containerColor = MaterialTheme.colorScheme.surface,
+                                contentColor = MaterialTheme.colorScheme.onSurface,
+                            ),
+                            border = BorderStroke(width = 1.dp, color = MaterialTheme.colorScheme.outline)
+                        ) {
+                            Icon(
+                                imageVector = WorkoutIcons.Chevron,
+                                contentDescription = null,
+                                tint = MaterialTheme.colorScheme.onSurface,
+                                modifier = Modifier.size(16.dp),
                             )
                         }
                     }
@@ -235,6 +273,6 @@ fun ConfigRow(
 @Composable
 private fun SettingsScreenPreview() {
     Theme {
-        SettingsScreen()
+        SettingsScreenContent()
     }
 }

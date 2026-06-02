@@ -7,6 +7,7 @@ import com.nabeelkm.workout.repository.WorkoutRepository
 import com.nabeelkm.workout.viewmodel.GoalDetailViewModel
 import com.nabeelkm.workout.viewmodel.GoalFormViewModel
 import com.nabeelkm.workout.viewmodel.GoalIndexViewModel
+import com.nabeelkm.workout.viewmodel.SettingsViewModel
 import com.nabeelkm.workout.viewmodel.WorkoutFormViewModel
 import com.nabeelkm.workout.viewmodel.WorkoutIndexViewModel
 import org.koin.core.module.Module
@@ -25,6 +26,7 @@ val sharedModule = module {
     viewModelOf(::GoalFormViewModel)
     viewModelOf(::WorkoutFormViewModel)
     viewModelOf(::WorkoutIndexViewModel)
+    viewModelOf(::SettingsViewModel)
 }
 
 expect val platformModule: Module
