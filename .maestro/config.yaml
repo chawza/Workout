@@ -1,0 +1,7 @@
+# Maestro suite configuration.
+# Docs: https://docs.maestro.dev/
+#
+# `flows` controls which files `maestro test .maestro` picks up.
+# Run a subset by tag, e.g.:  maestro test --include-tags smoke .maestro/flows
+flows:
+  - flows/*.yaml

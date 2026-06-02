@@ -1,0 +1,21 @@
+# Smoke: the app launches and the three bottom-nav destinations are reachable.
+appId: ${APP_ID}
+tags:
+  - smoke
+---
+- runFlow: ../subflows/launch_app.yaml
+
+# Bottom nav icons (contentDescription) should be present on first screen.
+- assertVisible: "Home menu"
+- assertVisible: "Goals menu"
+- assertVisible: "Settings menu"
+
+# Each tab opens its screen.
+- tapOn: "Goals menu"
+- assertVisible: "Goals"
+
+- tapOn: "Settings menu"
+- assertVisible: "Settings"
+
+- tapOn: "Home menu"
+- assertVisible: "Workouts"

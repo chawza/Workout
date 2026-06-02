@@ -1,0 +1,20 @@
+# Settings: toggle Dark Mode and open the Workout Icons customization screen.
+appId: ${APP_ID}
+tags:
+  - regression
+  - settings
+---
+- runFlow: ../subflows/launch_app.yaml
+
+- tapOn: "Settings menu"
+- assertVisible: "Settings"
+- assertVisible: "Dark Mode"
+
+# Appearance: flip the Dark Mode switch (row title is the anchor).
+- tapOn: "Dark Mode"
+- assertVisible: "Dark Mode"   # row still present after toggling
+
+# Customization: open the Workout Icons management screen and confirm it loaded.
+- tapOn: "Workout Icons"
+- assertVisible: "Workout Icons"
+- assertVisible: "Cardio"      # an icon option proves the screen rendered
