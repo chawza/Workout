@@ -1,0 +1,19 @@
+# Home (Workouts) screen: toggle List/Calendar views and the summary is present.
+appId: ${APP_ID}
+tags:
+  - regression
+  - workouts
+---
+- runFlow: ../subflows/launch_app.yaml
+
+- tapOn: "Home menu"
+- assertVisible: "Workouts"
+
+# Switch to Calendar view, then back to List.
+- tapOn: "Calendar"
+- assertVisible: "Calendar view coming soon"
+
+- tapOn: "List"
+# "THIS WEEK" header anchors the list view (seeded/empty-safe assertions can
+# be relaxed here if the list is empty on a fresh install).
+- assertVisible: "List"

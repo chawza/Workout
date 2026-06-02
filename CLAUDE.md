@@ -29,6 +29,19 @@ Kotlin Multiplatform (KMP) workout tracking app targeting Android, iOS, and Desk
 
 Room database code generation requires KSP to run before tests pass on a clean checkout.
 
+### E2E (Maestro)
+
+End-to-end UI tests live in `.maestro/` and drive the real app on an Android emulator / iOS
+simulator. **When writing or running E2E tests, follow [`docs/e2e-testing.md`](docs/e2e-testing.md)** —
+it covers conventions (text/`contentDescription` selectors, no `testTag` changes), the authoring
+loop, and key gotchas (boot the emulator with `-gpu host`, pass `APP_ID` via `-e`).
+
+```bash
+emulator -avd <name> -gpu host &   # hardware GPU required or the UI renders blank
+./gradlew :androidApp:installDebug
+./.maestro/run-android.sh           # add --include-tags smoke for a subset
+```
+
 ## Architecture
 
 All business logic and UI live in `shared/` (the KMP module). Platform-specific apps (`androidApp/`, `desktopApp/`, `iosApp/`) are thin entry points that boot Koin and host the shared `App()` composable.

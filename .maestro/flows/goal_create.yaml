@@ -1,0 +1,26 @@
+# Create a new goal end-to-end and assert it appears in the Goals list.
+appId: ${APP_ID}
+tags:
+  - smoke
+  - goals
+---
+- runFlow: ../subflows/launch_app.yaml
+- runFlow: ../subflows/go_to_goals.yaml
+
+- tapOn: "+ New Goal"
+- assertVisible: "New Goal"
+
+# Goal name field is identified by its placeholder text.
+- tapOn: "e.g. Run a half marathon"
+- inputText: "Run a 5K"
+- hideKeyboard
+
+# Save Goal sits at the bottom of a scrollable form — scroll it into view first.
+- scrollUntilVisible:
+    element:
+      text: "Save Goal"
+    direction: DOWN
+- tapOn: "Save Goal"
+
+# Back on the Goals list, the new goal is visible.
+- assertVisible: "Run a 5K"

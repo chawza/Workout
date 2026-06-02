@@ -1,0 +1,6 @@
+# Reusable: navigate to the Goals tab via the bottom navigation.
+# The Goals icon exposes contentDescription "Goals menu".
+appId: ${APP_ID}
+---
+- tapOn: "Goals menu"
+- assertVisible: "Goals"

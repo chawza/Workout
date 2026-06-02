@@ -1,0 +1,28 @@
+# Create a goal, then delete it, and assert it's gone.
+# Self-contained (clearState in launch_app), so it does not depend on goal_create.
+appId: ${APP_ID}
+tags:
+  - regression
+  - goals
+---
+- runFlow: ../subflows/launch_app.yaml
+- runFlow: ../subflows/go_to_goals.yaml
+
+# Seed a goal to delete.
+- tapOn: "+ New Goal"
+- tapOn: "e.g. Run a half marathon"
+- inputText: "Temp Goal"
+- hideKeyboard
+- scrollUntilVisible:
+    element:
+      text: "Save Goal"
+    direction: DOWN
+- tapOn: "Save Goal"
+- assertVisible: "Temp Goal"
+
+# Delete it. The per-card "Delete" action sits near the goal title.
+- tapOn:
+    text: "Delete"
+    # If multiple cards exist, scope to the one containing our goal:
+    # below: "Temp Goal"
+- assertNotVisible: "Temp Goal"

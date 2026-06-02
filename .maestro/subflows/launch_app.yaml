@@ -1,0 +1,6 @@
+# Reusable: cold-launch the app with a clean state.
+# `clearState` wipes app data so each flow starts from a known baseline.
+appId: ${APP_ID}
+---
+- clearState
+- launchApp
